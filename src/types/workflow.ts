@@ -91,9 +91,9 @@ export interface DelayData extends BaseNodeData {
 export interface ConditionData extends BaseNodeData {
   type: 'condition'
   config: {
-    field: string
-    operator: 'equals' | 'not_equals' | 'contains' | 'greater_than' | 'less_than'
-    value: string
+    expression: string
+    operator: string
+    value: any
   }
 }
 
@@ -102,8 +102,8 @@ export interface TransformData extends BaseNodeData {
   config: {
     transformations: Array<{
       field: string
-      operation: 'set' | 'delete' | 'rename' | 'uppercase' | 'lowercase'
-      value?: string
+      operation: string
+      value: any
     }>
   }
 }

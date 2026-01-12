@@ -76,3 +76,66 @@ export const delaySchema = z.object({
 })
 
 export type DelayConfig = z.infer<typeof delaySchema>
+
+/**
+ * Condition Node Schema
+ * Schema: { expression: string, operator: string, value: any }
+ * Input port, true/false output ports (labeled)
+ */
+export const conditionSchema = z.object({
+  expression: z.string().min(1, 'Expression is required'),
+  operator: z.union([
+    z.enum([
+      'equals',
+      'not_equals',
+      'contains',
+      'not_contains',
+      'greater_than',
+      'less_than',
+      'greater_than_or_equal',
+      'less_than_or_equal',
+      'starts_with',
+      'ends_with',
+      'is_empty',
+      'is_not_empty',
+    ]),
+    z.string().min(1, 'Operator is required'), // Allow custom operators
+  ]),
+  value: z.any(), // value can be any type (string, number, boolean, etc.)
+})
+
+export type ConditionConfig = z.infer<typeof conditionSchema>
+
+/**
+ * Transform Node Schema
+ * Schema: { transformations: Array<{ field: string, operation: string, value: any }> }
+ * Input port, output port
+ */
+export const transformSchema = z.object({
+  transformations: z.array(
+    z.object({
+      field: z.string().min(1, 'Field name is required'),
+      operation: z.union([
+        z.enum([
+          'set',
+          'delete',
+          'rename',
+          'uppercase',
+          'lowercase',
+          'trim',
+          'concat',
+          'split',
+          'replace',
+          'increment',
+          'decrement',
+          'multiply',
+          'divide',
+        ]),
+        z.string().min(1, 'Operation is required'), // Allow custom operations
+      ]),
+      value: z.any().optional(), // value is optional and can be any type
+    })
+  ),
+})
+
+export type TransformConfig = z.infer<typeof transformSchema>

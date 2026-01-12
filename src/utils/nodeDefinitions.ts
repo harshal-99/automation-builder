@@ -91,7 +91,7 @@ export const nodeDefinitions: Record<NodeType, NodeDefinition> = {
     description: 'Branch based on a condition',
     icon: 'git-branch',
     defaultConfig: {
-      field: '',
+      expression: '',
       operator: 'equals',
       value: '',
     },
