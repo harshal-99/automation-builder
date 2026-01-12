@@ -5,7 +5,16 @@ import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
 import { MiniMap } from '@vue-flow/minimap'
 import { useWorkflowStore } from '@/stores'
-import type { Node, Edge, Connection, NodeDragEvent, ViewportTransform } from '@vue-flow/core'
+import { nodeTypes } from '@/components/nodes'
+import type {
+  Node,
+  Edge,
+  Connection,
+  NodeDragEvent,
+  ViewportTransform,
+  NodeChange,
+  EdgeChange,
+} from '@vue-flow/core'
 
 const workflowStore = useWorkflowStore()
 
@@ -14,6 +23,8 @@ const {
   onConnect,
   onNodeDragStop,
   onViewportChange,
+  onNodesChange,
+  onEdgesChange,
   fitView,
   project,
 } = useVueFlow()
@@ -69,6 +80,24 @@ onViewportChange((viewport: ViewportTransform) => {
   })
 })
 
+// Handle node changes (including deletions)
+onNodesChange((changes: NodeChange[]) => {
+  changes.forEach((change) => {
+    if (change.type === 'remove') {
+      workflowStore.deleteNodes([change.id])
+    }
+  })
+})
+
+// Handle edge changes (including deletions)
+onEdgesChange((changes: EdgeChange[]) => {
+  changes.forEach((change) => {
+    if (change.type === 'remove') {
+      workflowStore.deleteEdges([change.id])
+    }
+  })
+})
+
 // Handle selection changes (called from template event)
 function handleSelectionChange({ nodes: selectedNodes, edges: selectedEdges }: { nodes: Node[]; edges: Edge[] }) {
   workflowStore.setSelection(
@@ -98,6 +127,7 @@ defineExpose({
     <VueFlow
       v-model:nodes="nodes"
       v-model:edges="edges"
+      :node-types="nodeTypes"
       :default-viewport="defaultViewport"
       :min-zoom="minZoom"
       :max-zoom="maxZoom"

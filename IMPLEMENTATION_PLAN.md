@@ -61,8 +61,8 @@ This document outlines a phased approach to building a node-based workflow build
   - Fit-view control
 - [x] Set up canvas viewport state management
 
-### 2.2 Basic Node Implementation
-- [ ] Define base node interface and types:
+### 2.2 Basic Node Implementation ✅ COMPLETED
+- [x] Define base node interface and types:
   ```typescript
   interface WorkflowNode {
     id: string;
@@ -72,9 +72,9 @@ This document outlines a phased approach to building a node-based workflow build
     selected?: boolean;
   }
   ```
-- [ ] Create custom node component wrapper
-- [ ] Implement node selection (single & multi-select)
-- [ ] Add node deletion functionality
+- [x] Create custom node component wrapper (`BaseNode.vue`)
+- [x] Implement node selection (single & multi-select via Shift key)
+- [x] Add node deletion functionality (Delete key)
 
 ### 2.3 Edge/Connection System
 - [ ] Define edge types and interfaces

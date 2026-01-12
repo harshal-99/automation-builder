@@ -1,4 +1,4 @@
-import type { NodeDefinition, NodeType, NodeCategory } from '@/types'
+import type { NodeDefinition, NodeType, NodeCategory, WorkflowNodeData } from '@/types'
 
 export const nodeDefinitions: Record<NodeType, NodeDefinition> = {
   'manual-trigger': {
@@ -122,7 +122,7 @@ export function getNodeDefinition(type: NodeType): NodeDefinition {
   return nodeDefinitions[type]
 }
 
-export function createNodeData(type: NodeType) {
+export function createNodeData(type: NodeType): WorkflowNodeData {
   const definition = nodeDefinitions[type]
   return {
     label: definition.label,
@@ -130,5 +130,22 @@ export function createNodeData(type: NodeType) {
     category: definition.category,
     config: { ...definition.defaultConfig },
     isValid: false,
+  } as WorkflowNodeData
+}
+
+/**
+ * Creates a complete workflow node ready to be added to VueFlow
+ * @param type The node type to create
+ * @param position The position on the canvas
+ * @returns A WorkflowNode object
+ */
+export function createWorkflowNode(
+  type: NodeType,
+  position: { x: number; y: number }
+) {
+  return {
+    type: 'workflow-node' as const, // VueFlow component type
+    position,
+    data: createNodeData(type),
   }
 }

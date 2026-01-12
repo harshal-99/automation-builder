@@ -5,6 +5,7 @@ import Button from '@/components/ui/Button.vue'
 import IconButton from '@/components/ui/IconButton.vue'
 import Sidebar from '@/components/ui/Sidebar.vue'
 import { WorkflowCanvas } from '@/components/canvas'
+import { createWorkflowNode } from '@/utils/nodeDefinitions'
 
 const workflowStore = useWorkflowStore()
 const historyStore = useHistoryStore()
@@ -19,6 +20,37 @@ onMounted(() => {
     }),
     (snapshot) => workflowStore.restoreSnapshot(snapshot)
   )
+
+  // Add sample nodes for testing (remove in production)
+  if (workflowStore.nodes.length === 0) {
+    const triggerId = workflowStore.addNode(
+      createWorkflowNode('manual-trigger', { x: 100, y: 150 })
+    )
+    const conditionId = workflowStore.addNode(
+      createWorkflowNode('condition', { x: 350, y: 150 })
+    )
+    const emailId = workflowStore.addNode(
+      createWorkflowNode('send-email', { x: 600, y: 80 })
+    )
+    const smsId = workflowStore.addNode(
+      createWorkflowNode('send-sms', { x: 600, y: 220 })
+    )
+
+    // Connect nodes
+    workflowStore.addEdge({ source: triggerId, target: conditionId })
+    workflowStore.addEdge({
+      source: conditionId,
+      target: emailId,
+      sourceHandle: 'true',
+      label: 'Yes',
+    })
+    workflowStore.addEdge({
+      source: conditionId,
+      target: smsId,
+      sourceHandle: 'false',
+      label: 'No',
+    })
+  }
 })
 </script>
 
