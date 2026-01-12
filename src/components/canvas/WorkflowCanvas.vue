@@ -139,6 +139,11 @@ function handleSelectionChange({nodes: selectedNodes, edges: selectedEdges}: { n
   )
 }
 
+// Handle node clicks to ensure selection
+function handleNodeClick(event: { node: Node }) {
+  workflowStore.setSelection([event.node.id], [])
+}
+
 // Handle drag and drop from the palette
 function handleDragOver(event: DragEvent) {
   event.preventDefault()
@@ -240,6 +245,7 @@ defineExpose({
         fit-view-on-init
         class="h-full w-full"
         @selection-change="handleSelectionChange"
+        @node-click="handleNodeClick"
     >
       <!-- Grid Background -->
       <Background

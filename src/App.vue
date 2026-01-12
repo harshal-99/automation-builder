@@ -5,6 +5,7 @@ import Button from '@/components/ui/Button.vue'
 import IconButton from '@/components/ui/IconButton.vue'
 import Sidebar from '@/components/ui/Sidebar.vue'
 import NodePalette from '@/components/ui/NodePalette.vue'
+import ConfigPanel from '@/components/ui/ConfigPanel.vue'
 import { WorkflowCanvas } from '@/components/canvas'
 import { createWorkflowNode } from '@/utils/nodeDefinitions'
 
@@ -90,7 +91,7 @@ onMounted(() => {
 
       <!-- Right Sidebar - Config Panel -->
       <Sidebar title="Configuration" side="right">
-        <p class="text-xs text-gray-500 p-4">Select a node to configure</p>
+        <ConfigPanel />
       </Sidebar>
     </main>
 
