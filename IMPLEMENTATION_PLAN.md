@@ -53,13 +53,13 @@ This document outlines a phased approach to building a node-based workflow build
 ## Phase 2: Canvas & Graph Foundation
 
 ### 2.1 Canvas Setup
-- [ ] Create main `WorkflowCanvas.vue` component
-- [ ] Implement VueFlow canvas with:
+- [x] Create main `WorkflowCanvas.vue` component
+- [x] Implement VueFlow canvas with:
   - Pan & zoom functionality
   - Grid background with snap-to-grid
   - Minimap display
   - Fit-view control
-- [ ] Set up canvas viewport state management
+- [x] Set up canvas viewport state management
 
 ### 2.2 Basic Node Implementation
 - [ ] Define base node interface and types:

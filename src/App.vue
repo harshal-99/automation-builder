@@ -4,6 +4,7 @@ import { useWorkflowStore, useHistoryStore } from '@/stores'
 import Button from '@/components/ui/Button.vue'
 import IconButton from '@/components/ui/IconButton.vue'
 import Sidebar from '@/components/ui/Sidebar.vue'
+import { WorkflowCanvas } from '@/components/canvas'
 
 const workflowStore = useWorkflowStore()
 const historyStore = useHistoryStore()
@@ -51,10 +52,7 @@ onMounted(() => {
 
       <!-- Canvas -->
       <div class="flex-1 relative bg-gray-900">
-        <!-- VueFlow canvas will be added in Phase 2 -->
-        <div class="flex items-center justify-center h-full">
-          <p class="text-gray-500">Canvas ready for Phase 2</p>
-        </div>
+        <WorkflowCanvas />
       </div>
 
       <!-- Right Sidebar - Config Panel -->
