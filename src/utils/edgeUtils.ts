@@ -102,8 +102,11 @@ export function getValidSourceHandles(nodeType: NodeType): string[] {
     return outputs > 0 ? ['output'] : []
   }
 
-  // For condition nodes with multiple outputs
-  return Object.keys(outputs)
+  // For nodes with multiple named outputs (condition nodes, action nodes with error/success ports)
+  return Object.keys(outputs).filter((key) => {
+    const count = outputs[key as keyof typeof outputs]
+    return typeof count === 'number' && count > 0
+  })
 }
 
 /**
@@ -135,6 +138,18 @@ export function createEdgeWithLabel(
     } else if (connection.sourceHandle === 'false') {
       label = 'No'
       edgeData = { condition: 'false' }
+    }
+  }
+  
+  // Add labels for action node outputs (success, error, output)
+  if (sourceNode?.data && ['http-request', 'send-email', 'send-sms'].includes(sourceNode.data.type) && connection.sourceHandle) {
+    const labelMap: Record<string, string> = {
+      success: 'Success',
+      error: 'Error',
+      output: 'Output',
+    }
+    if (labelMap[connection.sourceHandle]) {
+      label = labelMap[connection.sourceHandle]
     }
   }
 

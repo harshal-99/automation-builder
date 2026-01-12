@@ -108,17 +108,17 @@ This document outlines a phased approach to building a node-based workflow build
   - Schema: `{ url: string, method: 'GET'|'POST', headers?: Record<string, string> }`
   - Single output port
 
-### 3.3 Action Nodes
-- [ ] **HTTP Request**
+### 3.3 Action Nodes ✅ COMPLETED
+- [x] **HTTP Request**
   - Schema: `{ url: string, method: string, headers?: object, body?: string, timeout?: number }`
   - Input port, output port, error port
-- [ ] **Send Email**
+- [x] **Send Email**
   - Schema: `{ to: string, subject: string, body: string, cc?: string }`
   - Input port, success/error outputs
-- [ ] **Send SMS**
+- [x] **Send SMS**
   - Schema: `{ phoneNumber: string, message: string }`
   - Input port, success/error outputs
-- [ ] **Delay**
+- [x] **Delay**
   - Schema: `{ duration: number, unit: 'seconds'|'minutes'|'hours' }`
   - Input port, output port
 

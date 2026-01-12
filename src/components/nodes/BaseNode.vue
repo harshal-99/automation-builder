@@ -19,11 +19,27 @@ const outputHandles = computed(() => {
   if (typeof outputs === 'number') {
     return outputs > 0 ? [{ id: 'output', label: null }] : []
   }
+  
   // For condition nodes with true/false branches
-  return [
-    { id: 'true', label: 'Yes' },
-    { id: 'false', label: 'No' },
-  ]
+  if ('true' in outputs && 'false' in outputs) {
+    return [
+      { id: 'true', label: 'Yes' },
+      { id: 'false', label: 'No' },
+    ]
+  }
+  
+  // For action nodes with named outputs (output, error, success)
+  return Object.entries(outputs).map(([id, count]) => {
+    if (count > 0) {
+      const labels: Record<string, string> = {
+        output: 'Output',
+        success: 'Success',
+        error: 'Error',
+      }
+      return { id, label: labels[id] || null }
+    }
+    return null
+  }).filter((handle): handle is { id: string; label: string | null } => handle !== null)
 })
 
 // Category-based colors
@@ -157,7 +173,7 @@ const iconPath = computed(() => {
       />
     </template>
 
-    <!-- Multiple output handles (for condition nodes) -->
+    <!-- Multiple output handles (for condition nodes and action nodes) -->
     <template v-else-if="outputHandles.length > 1">
       <Handle
         v-for="(handle, index) in outputHandles"
@@ -167,9 +183,11 @@ const iconPath = computed(() => {
         :position="Position.Right"
         class="w-3! h-3! border-2! transition-colors"
         :class="[
-          handle.id === 'true'
+          handle.id === 'true' || handle.id === 'success' || handle.id === 'output'
             ? 'bg-green-500! border-green-600! hover:bg-green-400!'
-            : 'bg-red-500! border-red-600! hover:bg-red-400!'
+            : handle.id === 'false' || handle.id === 'error'
+            ? 'bg-red-500! border-red-600! hover:bg-red-400!'
+            : 'bg-gray-400! border-gray-600! hover:bg-blue-400!'
         ]"
         :style="{ top: `${30 + index * 30}%` }"
       />
@@ -178,7 +196,13 @@ const iconPath = computed(() => {
         v-for="(handle, index) in outputHandles"
         :key="`label-${handle.id}`"
         class="absolute right-5 text-[10px] font-medium"
-        :class="handle.id === 'true' ? 'text-green-400' : 'text-red-400'"
+        :class="[
+          handle.id === 'true' || handle.id === 'success' || handle.id === 'output'
+            ? 'text-green-400'
+            : handle.id === 'false' || handle.id === 'error'
+            ? 'text-red-400'
+            : 'text-gray-400'
+        ]"
         :style="{ top: `${25 + index * 30}%` }"
       >
         {{ handle.label }}

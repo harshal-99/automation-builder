@@ -164,5 +164,5 @@ export interface NodeDefinition {
   icon: string
   defaultConfig: Record<string, unknown>
   inputs: number
-  outputs: number | { true: number; false: number }
+  outputs: number | { true: number; false: number } | Record<string, number>
 }

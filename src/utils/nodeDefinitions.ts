@@ -41,7 +41,7 @@ export const nodeDefinitions: Record<NodeType, NodeDefinition> = {
       timeout: 30000,
     },
     inputs: 1,
-    outputs: 1,
+    outputs: { output: 1, error: 1 },
   },
   'send-email': {
     type: 'send-email',
@@ -56,7 +56,7 @@ export const nodeDefinitions: Record<NodeType, NodeDefinition> = {
       cc: '',
     },
     inputs: 1,
-    outputs: 1,
+    outputs: { success: 1, error: 1 },
   },
   'send-sms': {
     type: 'send-sms',
@@ -69,7 +69,7 @@ export const nodeDefinitions: Record<NodeType, NodeDefinition> = {
       message: '',
     },
     inputs: 1,
-    outputs: 1,
+    outputs: { success: 1, error: 1 },
   },
   delay: {
     type: 'delay',
