@@ -76,17 +76,17 @@ This document outlines a phased approach to building a node-based workflow build
 - [x] Implement node selection (single & multi-select via Shift key)
 - [x] Add node deletion functionality (Delete key)
 
-### 2.3 Edge/Connection System
-- [ ] Define edge types and interfaces
-- [ ] Implement connection handles (source/target)
-- [ ] Create edge validation rules (typed ports)
-- [ ] Add edge labels support (for conditional branches)
-- [ ] Implement edge deletion
+### 2.3 Edge/Connection System ✅ COMPLETED
+- [x] Define edge types and interfaces
+- [x] Implement connection handles (source/target)
+- [x] Create edge validation rules (typed ports)
+- [x] Add edge labels support (for conditional branches)
+- [x] Implement edge deletion
 
-### 2.4 Graph Validation
-- [ ] Implement acyclic graph validation (DAG check)
-- [ ] Create connection compatibility checker
-- [ ] Add visual feedback for invalid connections
+### 2.4 Graph Validation ✅ COMPLETED
+- [x] Implement acyclic graph validation (DAG check)
+- [x] Create connection compatibility checker
+- [x] Add visual feedback for invalid connections
 
 **Deliverables:** Interactive canvas with basic node/edge operations
 
@@ -164,7 +164,7 @@ This document outlines a phased approach to building a node-based workflow build
 - [ ] Integrate Zod validation with forms
 - [ ] Implement real-time validation on input
 - [ ] Display inline error messages
-- [ ] Disable Save button when form is invalid
+- [ ] Disable the Save button when the form is invalid
 - [ ] Add visual indicators for required fields
 
 ### 4.4 Form State Management
@@ -217,11 +217,11 @@ This document outlines a phased approach to building a node-based workflow build
 - [ ] `Ctrl/Cmd + V` - Paste
 - [ ] `Ctrl/Cmd + D` - Duplicate
 - [ ] `Escape` - Deselect all
-- [ ] Arrow keys - Nudge selected nodes
+- [ ] Arrow keys – Nudge selected nodes
 
 ### 5.5 Local Persistence
-- [ ] Create persistence service (LocalStorage + IndexedDB fallback)
-- [ ] Implement autosave with debounce (2 second delay)
+- [ ] Create a persistence service (LocalStorage or IndexedDB fallback)
+- [ ] Implement autosave with debouncing (2-second delay)
 - [ ] Add explicit Save/Load buttons
 - [ ] Save workflow state:
   - Nodes and edges
@@ -263,7 +263,7 @@ This document outlines a phased approach to building a node-based workflow build
 - [ ] Implement controls:
   - **Play** - Start/resume execution
   - **Pause** - Pause at current step
-  - **Step** - Execute single node
+  - **Step** – Execute a single node
   - **Stop** - Reset execution
 - [ ] Add execution speed control
 - [ ] Display current execution progress

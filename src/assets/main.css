@@ -1,10 +1,66 @@
 @import "tailwindcss";
-
 /* VueFlow base styles */
-@import "@vue-flow/core/dist/style.css";
-@import "@vue-flow/core/dist/theme-default.css";
 @import "@vue-flow/controls/dist/style.css";
 @import "@vue-flow/minimap/dist/style.css";
+@import "@vue-flow/core/dist/theme-default.css";
+@import "@vue-flow/core/dist/style.css";
+
+/* Custom color tokens for workflow canvas */
+@theme {
+  /* Edge colors */
+  --color-edge-default: #6b7280;
+  --color-edge-selected: #3b82f6;
+  --color-edge-hover: #60a5fa;
+  --color-edge-invalid: #ef4444;
+
+  /* Canvas UI colors */
+  --color-canvas-bg: #111827;
+  --color-controls-bg: #1f2937;
+  --color-controls-border: #374151;
+  --color-controls-text: #9ca3af;
+  --color-controls-text-hover: #f3f4f6;
+
+  /* Minimap colors */
+  --color-minimap-node: #4b5563;
+  --color-minimap-stroke: #6b7280;
+
+  /* Label colors - default */
+  --color-label-bg: #374151;
+  --color-label-text: #f3f4f6;
+  --color-label-border: #4b5563;
+
+  /* Label colors - condition true (emerald) */
+  --color-label-true-bg: #059669;
+  --color-label-true-text: #ffffff;
+  --color-label-true-border: #047857;
+
+  /* Label colors - condition false (red) */
+  --color-label-false-bg: #dc2626;
+  --color-label-false-text: #ffffff;
+  --color-label-false-border: #b91c1c;
+
+  /* Handle colors */
+  --color-handle-bg: #6b7280;
+  --color-handle-border: #374151;
+  --color-handle-hover: #3b82f6;
+
+  /* Selection colors */
+  --color-selection-border: #3b82f6;
+
+  /* Grid pattern */
+  --color-grid-pattern: rgba(148, 163, 184, 0.2);
+
+  /* Minimap mask */
+  --color-minimap-mask: rgba(17, 24, 39, 0.8);
+
+  /* Selection background */
+  --color-selection-bg: rgba(59, 130, 246, 0.1);
+
+  /* Shadow color */
+  --color-shadow: rgba(0, 0, 0, 0.1);
+}
+
+
 
 @layer base {
   html,
