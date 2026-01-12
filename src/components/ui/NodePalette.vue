@@ -19,7 +19,7 @@ const categoryIcons: Record<NodeCategory, string> = {
   logic: '🔀',
 }
 
-// Filter nodes based on search query
+// Filter nodes based on a search query
 const filteredNodesByCategory = computed(() => {
   const query = searchQuery.value.toLowerCase().trim()
 

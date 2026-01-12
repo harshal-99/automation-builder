@@ -44,7 +44,7 @@ export interface WebhookTriggerData extends BaseNodeData {
   type: 'webhook-trigger'
   config: {
     url: string
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE'
+    method: 'GET' | 'POST'
     headers?: Record<string, string>
   }
 }

@@ -100,11 +100,11 @@ This document outlines a phased approach to building a node-based workflow build
 - [x] Group nodes by category (Triggers, Actions, Logic)
 - [x] Add node search/filter functionality
 
-### 3.2 Trigger Nodes
-- [ ] **Manual Trigger**
+### 3.2 Trigger Nodes ✅ COMPLETED
+- [x] **Manual Trigger**
   - Schema: `{ name: string }`
   - Single output port
-- [ ] **Webhook Trigger**
+- [x] **Webhook Trigger**
   - Schema: `{ url: string, method: 'GET'|'POST', headers?: Record<string, string> }`
   - Single output port
 
