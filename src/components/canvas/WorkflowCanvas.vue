@@ -9,7 +9,8 @@ import {useWorkflowStore} from '@/stores'
 import {nodeTypes} from '@/components/nodes'
 import {edgeTypes} from '@/components/edges'
 import {createEdgeWithLabel, validateConnection, wouldCreateCycle,} from '@/utils/edgeUtils'
-import type {WorkflowEdge, WorkflowNode} from '@/types'
+import {createWorkflowNode} from '@/utils/nodeDefinitions'
+import type {NodeType} from '@/types'
 
 const workflowStore = useWorkflowStore()
 
@@ -138,6 +139,58 @@ function handleSelectionChange({nodes: selectedNodes, edges: selectedEdges}: { n
   )
 }
 
+// Handle drag and drop from the palette
+function handleDragOver(event: DragEvent) {
+  event.preventDefault()
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'copy'
+  }
+}
+
+function handleDrop(event: DragEvent) {
+  event.preventDefault()
+
+  const nodeType = event.dataTransfer?.getData('application/node-type')
+  if (!nodeType) {
+    return
+  }
+
+  // Get the drop position - VueFlow's project function converts screen coordinates to flow coordinates
+  // We need coordinates relative to the VueFlow viewport
+  const canvasElement = event.currentTarget as HTMLElement
+  const vueFlowPane = canvasElement.querySelector('.vue-flow__viewport') as HTMLElement || canvasElement.querySelector('.vue-flow__pane') as HTMLElement
+
+  if (!vueFlowPane) {
+    // Fallback: use the canvas element itself
+    const rect = canvasElement.getBoundingClientRect()
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
+    const position = project({x, y})
+
+    const snapX = snapToGrid.value ? Math.round(position.x / snapGrid.value[0]) * snapGrid.value[0] : position.x
+    const snapY = snapToGrid.value ? Math.round(position.y / snapGrid.value[1]) * snapGrid.value[1] : position.y
+
+    const newNode = createWorkflowNode(nodeType as NodeType, {x: snapX, y: snapY})
+    workflowStore.addNode(newNode)
+    return
+  }
+
+  const rect = vueFlowPane.getBoundingClientRect()
+  const x = event.clientX - rect.left
+  const y = event.clientY - rect.top
+
+  // Convert screen coordinates to canvas coordinates using VueFlow's project function
+  const position = project({x, y})
+
+  // Snap to grid if enabled
+  const snapX = snapToGrid.value ? Math.round(position.x / snapGrid.value[0]) * snapGrid.value[0] : position.x
+  const snapY = snapToGrid.value ? Math.round(position.y / snapGrid.value[1]) * snapGrid.value[1] : position.y
+
+  // Create and add the node
+  const newNode = createWorkflowNode(nodeType as NodeType, {x: snapX, y: snapY})
+  workflowStore.addNode(newNode)
+}
+
 // Fit view on mount with a slight delay for proper rendering
 onMounted(() => {
   setTimeout(() => {
@@ -155,7 +208,11 @@ defineExpose({
 </script>
 
 <template>
-  <div class="w-full h-full bg-gray-900">
+  <div
+      class="w-full h-full bg-gray-900"
+      @dragover="handleDragOver"
+      @drop="handleDrop"
+  >
     <VueFlow
         v-model:nodes="nodes"
         v-model:edges="edges"

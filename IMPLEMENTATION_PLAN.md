@@ -94,11 +94,11 @@ This document outlines a phased approach to building a node-based workflow build
 
 ## Phase 3: Node Types & Palette
 
-### 3.1 Node Palette Component
-- [ ] Create `NodePalette.vue` sidebar component
-- [ ] Implement drag-and-drop from palette to canvas
-- [ ] Group nodes by category (Triggers, Actions, Logic)
-- [ ] Add node search/filter functionality
+### 3.1 Node Palette Component ✅ COMPLETED
+- [x] Create `NodePalette.vue` sidebar component
+- [x] Implement drag-and-drop from palette to canvas
+- [x] Group nodes by category (Triggers, Actions, Logic)
+- [x] Add node search/filter functionality
 
 ### 3.2 Trigger Nodes
 - [ ] **Manual Trigger**

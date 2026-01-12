@@ -4,6 +4,7 @@ import { useWorkflowStore, useHistoryStore } from '@/stores'
 import Button from '@/components/ui/Button.vue'
 import IconButton from '@/components/ui/IconButton.vue'
 import Sidebar from '@/components/ui/Sidebar.vue'
+import NodePalette from '@/components/ui/NodePalette.vue'
 import { WorkflowCanvas } from '@/components/canvas'
 import { createWorkflowNode } from '@/utils/nodeDefinitions'
 
@@ -79,7 +80,7 @@ onMounted(() => {
     <main class="flex flex-1 overflow-hidden">
       <!-- Left Sidebar - Node Palette -->
       <Sidebar title="Nodes" side="left">
-        <p class="text-xs text-gray-500 p-4">Node palette coming soon...</p>
+        <NodePalette />
       </Sidebar>
 
       <!-- Canvas -->
