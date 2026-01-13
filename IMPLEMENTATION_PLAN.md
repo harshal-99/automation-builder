@@ -161,12 +161,14 @@ This document outlines a phased approach to building a node-based workflow build
   - [x] Expression builder (for conditions)
   - [x] Array field (for transformations)
 
-### 4.3 Validation System
-- [ ] Integrate Zod validation with forms
-- [ ] Implement real-time validation on input
-- [ ] Display inline error messages
-- [ ] Disable the Save button when the form is invalid
-- [ ] Add visual indicators for required fields
+### 4.3 Validation System ✅ COMPLETED
+- [x] Integrate Zod validation with forms
+- [x] Implement real-time validation on input
+- [x] Display inline error messages
+- [x] Validation status banner shows error count
+- [x] Add visual indicators for required fields (asterisks)
+- [x] Update node.isValid property based on validation
+- [x] Invalid nodes show warning indicator on canvas
 
 ### 4.4 Form State Management
 - [ ] Track form dirty state
@@ -221,7 +223,7 @@ This document outlines a phased approach to building a node-based workflow build
 - [ ] Arrow keys – Nudge selected nodes
 
 ### 5.5 Local Persistence
-- [ ] Create a persistence service (LocalStorage or IndexedDB fallback)
+- [ ] Create a persistence service (LocalStorage or IndexedDB)
 - [ ] Implement autosave with debouncing (2-second delay)
 - [ ] Add explicit Save/Load buttons
 - [ ] Save workflow state:
