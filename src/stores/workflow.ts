@@ -31,11 +31,16 @@ export const useWorkflowStore = defineStore('workflow', () => {
   const updatedAt = ref<string>(new Date().toISOString())
 
   // Getters
-  const selectedNodes = computed(() =>
+  // selectedNodes and selectedEdges as string arrays (matching spec 5.1)
+  const selectedNodes = computed(() => selectedNodeIds.value)
+  const selectedEdges = computed(() => selectedEdgeIds.value)
+
+  // Computed properties for getting selected node/edge objects
+  const selectedNodeObjects = computed(() =>
     nodes.value.filter((n) => selectedNodeIds.value.includes(n.id))
   )
 
-  const selectedEdges = computed(() =>
+  const selectedEdgeObjects = computed(() =>
     edges.value.filter((e) => selectedEdgeIds.value.includes(e.id))
   )
 
@@ -263,6 +268,8 @@ export const useWorkflowStore = defineStore('workflow', () => {
     // Getters
     selectedNodes,
     selectedEdges,
+    selectedNodeObjects,
+    selectedEdgeObjects,
     nodeById,
     hasUnsavedChanges,
 

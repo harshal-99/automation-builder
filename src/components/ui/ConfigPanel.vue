@@ -14,8 +14,8 @@ const uiStore = useUIStore()
 
 // Get the selected node (only show panel if exactly one node is selected)
 const selectedNode = computed<WorkflowNode | null>(() => {
-  if (workflowStore.selectedNodes.length === 1) {
-    return workflowStore.selectedNodes[0]
+  if (workflowStore.selectedNodeObjects.length === 1) {
+    return workflowStore.selectedNodeObjects[0]
   }
   return null
 })
@@ -153,7 +153,7 @@ watch(
 
 // Watch for selection changes and open/close panel accordingly
 watch(
-    () => workflowStore.selectedNodes.length,
+    () => workflowStore.selectedNodeObjects.length,
     (count, oldCount) => {
       if (count === 1) {
         uiStore.openConfigPanel()

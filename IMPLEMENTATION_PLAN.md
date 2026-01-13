@@ -182,8 +182,8 @@ This document outlines a phased approach to building a node-based workflow build
 
 ## Phase 5: State Management & Persistence
 
-### 5.1 Pinia Store Architecture
-- [ ] Create `workflowStore`:
+### 5.1 Pinia Store Architecture ✅ COMPLETED
+- [x] Create `workflowStore`:
   ```typescript
   interface WorkflowState {
     nodes: WorkflowNode[];
@@ -193,8 +193,8 @@ This document outlines a phased approach to building a node-based workflow build
     selectedEdges: string[];
   }
   ```
-- [ ] Create `historyStore` for undo/redo
-- [ ] Create `uiStore` for UI state (panel open, palette collapsed, etc.)
+- [x] Create `historyStore` for undo/redo
+- [x] Create `uiStore` for UI state (panel open, palette collapsed, etc.)
 
 ### 5.2 Immutable State Updates
 - [ ] Integrate Immer with Pinia actions
