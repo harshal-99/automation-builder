@@ -6,3 +6,6 @@ export * from './edgeUtils'
 
 // Store helpers for immutable state updates
 export * from './storeHelpers'
+
+// Workflow utilities
+export * from './workflowUtils'

@@ -4,6 +4,13 @@ import {v4 as uuidv4} from 'uuid'
 import type {ViewportState, WorkflowEdge, WorkflowNode, WorkflowNodeData, WorkflowState,} from '@/types'
 import {useHistoryStore} from './history'
 import {addArrayItem, filterArrayItems, replaceRef, updateArrayItem, updateRef,} from '@/utils/storeHelpers'
+import {
+	cloneNodesAndEdges,
+	createPastedNodesAndEdges,
+	filterValidEdges,
+	getInternalEdges,
+	getNudgeDelta,
+} from '@/utils/workflowUtils'
 
 const DEFAULT_VIEWPORT: ViewportState = {
 	x: 0,
@@ -23,6 +30,10 @@ export const useWorkflowStore = defineStore('workflow', () => {
 	const selectedEdgeIds = ref<string[]>([])
 	const createdAt = ref<string>(new Date().toISOString())
 	const updatedAt = ref<string>(new Date().toISOString())
+
+	// Clipboard state
+	const clipboardNodes = ref<WorkflowNode[]>([])
+	const clipboardEdges = ref<WorkflowEdge[]>([])
 
 	// Getters
 	// selectedNodes and selectedEdges as string arrays (matching spec 5.1)
@@ -85,13 +96,13 @@ export const useWorkflowStore = defineStore('workflow', () => {
 
 	function updateNodePositions(updates: Array<{ nodeId: string; position: { x: number; y: number } }>) {
 		const historyStore = useHistoryStore()
-		
+
 		// If batching is active, don't save snapshot here (will be saved when batch ends)
 		if (!historyStore.isBatching) {
 			historyStore.saveSnapshot('MOVE_NODE', `Move ${updates.length} node(s)`)
 		}
 
-		updates.forEach(({ nodeId, position }) => {
+		updates.forEach(({nodeId, position}) => {
 			updateArrayItem(nodes, nodeId, (node) => {
 				node.position = position
 			})
@@ -102,7 +113,7 @@ export const useWorkflowStore = defineStore('workflow', () => {
 
 	function deleteNodes(nodeIds: string[]) {
 		const historyStore = useHistoryStore()
-		
+
 		// If batching is active, don't save snapshot here (will be saved when batch ends)
 		if (!historyStore.isBatching) {
 			historyStore.saveSnapshot('DELETE_NODE', `Delete ${nodeIds.length} node(s)`)
@@ -194,14 +205,7 @@ export const useWorkflowStore = defineStore('workflow', () => {
 		replaceRef(nodes, workflow.nodes)
 
 		// Filter out any invalid edges during load
-		const validEdges = workflow.edges.filter((edge) => {
-			if (!edge.source || !edge.target) {
-				console.warn('[WorkflowStore] Filtering out invalid edge during load:', edge)
-				return false
-			}
-			return true
-		})
-		replaceRef(edges, validEdges)
+		replaceRef(edges, filterValidEdges(workflow.edges))
 
 		replaceRef(viewport, workflow.viewport)
 		replaceRef(createdAt, workflow.createdAt)
@@ -239,18 +243,93 @@ export const useWorkflowStore = defineStore('workflow', () => {
 	// Restore state from history
 	function restoreSnapshot(snapshot: { nodes: WorkflowNode[]; edges: WorkflowEdge[]; viewport: ViewportState }) {
 		replaceRef(nodes, snapshot.nodes)
-
-		// Filter out any invalid edges during restore
-		const validEdges = snapshot.edges.filter((edge) => {
-			if (!edge.source || !edge.target) {
-				console.warn('[WorkflowStore] Filtering out invalid edge during restore:', edge)
-				return false
-			}
-			return true
-		})
-		replaceRef(edges, validEdges)
-
+		replaceRef(edges, filterValidEdges(snapshot.edges))
 		replaceRef(viewport, snapshot.viewport)
+		markUpdated()
+	}
+
+	// Clipboard operations
+	function copyNodes(nodeIds: string[]) {
+		if (nodeIds.length === 0) return
+
+		const nodesToCopy = nodes.value.filter((n) => nodeIds.includes(n.id))
+		const edgesToCopy = getInternalEdges(nodeIds, edges.value)
+		const cloned = cloneNodesAndEdges(nodesToCopy, edgesToCopy)
+
+		replaceRef(clipboardNodes, cloned.nodes)
+		replaceRef(clipboardEdges, cloned.edges)
+	}
+
+	function pasteNodes(offset: { x: number; y: number } = {x: 50, y: 50}) {
+		if (clipboardNodes.value.length === 0) return
+
+		const historyStore = useHistoryStore()
+		historyStore.saveSnapshot('ADD_NODE', `Paste ${clipboardNodes.value.length} node(s)`)
+
+		const {nodes: newNodes, edges: newEdges} = createPastedNodesAndEdges(
+			clipboardNodes.value,
+			clipboardEdges.value,
+			offset
+		)
+
+		// Add new nodes and edges
+		newNodes.forEach((node) => addArrayItem(nodes, node))
+		newEdges.forEach((edge) => addArrayItem(edges, edge))
+
+		// Select the newly pasted nodes
+		replaceRef(selectedNodeIds, newNodes.map((n) => n.id))
+		replaceRef(selectedEdgeIds, [])
+
+		markUpdated()
+	}
+
+	function duplicateNodes(nodeIds: string[]) {
+		if (nodeIds.length === 0) return
+
+		// Copy first
+		copyNodes(nodeIds)
+
+		// Then paste immediately
+		pasteNodes({x: 50, y: 50})
+	}
+
+	// Selection operations
+	function selectAll() {
+		const allNodeIds = nodes.value.map((n) => n.id)
+		const allEdgeIds = edges.value.map((e) => e.id)
+		setSelection(allNodeIds, allEdgeIds)
+	}
+
+	// Nudge operations
+	function nudgeNodes(direction: 'up' | 'down' | 'left' | 'right', distance: number = 10) {
+		if (selectedNodeIds.value.length === 0) return
+
+		const historyStore = useHistoryStore()
+		if (!historyStore.isBatching) {
+			historyStore.saveSnapshot('MOVE_NODE', `Nudge ${selectedNodeIds.value.length} node(s)`)
+		}
+
+		const delta = getNudgeDelta(direction, distance)
+		const updates = selectedNodeIds.value
+			.map((nodeId) => {
+				const node = nodes.value.find((n) => n.id === nodeId)
+				if (!node) return null
+				return {
+					nodeId,
+					position: {
+						x: node.position.x + delta.x,
+						y: node.position.y + delta.y,
+					},
+				}
+			})
+			.filter((update): update is { nodeId: string; position: { x: number; y: number } } => update !== null)
+
+		updates.forEach(({nodeId, position}) => {
+			updateArrayItem(nodes, nodeId, (node) => {
+				node.position = position
+			})
+		})
+
 		markUpdated()
 	}
 
@@ -291,5 +370,16 @@ export const useWorkflowStore = defineStore('workflow', () => {
 		getWorkflowState,
 		resetWorkflow,
 		restoreSnapshot,
+
+		// Clipboard operations
+		copyNodes,
+		pasteNodes,
+		duplicateNodes,
+
+		// Selection operations
+		selectAll,
+
+		// Nudge operations
+		nudgeNodes,
 	}
 })

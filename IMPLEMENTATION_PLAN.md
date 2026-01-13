@@ -213,14 +213,14 @@ This document outlines a phased approach to building a node-based workflow build
 - [x] Implement history state serialization
 - [x] Add undo/redo buttons in toolbar
 
-### 5.4 Keyboard Shortcuts
-- [ ] `Delete/Backspace` - Delete selected
-- [ ] `Ctrl/Cmd + A` - Select all
-- [ ] `Ctrl/Cmd + C` - Copy
-- [ ] `Ctrl/Cmd + V` - Paste
-- [ ] `Ctrl/Cmd + D` - Duplicate
-- [ ] `Escape` - Deselect all
-- [ ] Arrow keys – Nudge selected nodes
+### 5.4 Keyboard Shortcuts ✅ COMPLETED
+- [x] `Delete/Backspace` - Delete selected
+- [x] `Ctrl/Cmd + A` - Select all
+- [x] `Ctrl/Cmd + C` - Copy
+- [x] `Ctrl/Cmd + V` - Paste
+- [x] `Ctrl/Cmd + D` - Duplicate
+- [x] `Escape` - Deselect all
+- [x] Arrow keys – Nudge selected nodes
 
 ### 5.5 Local Persistence
 - [ ] Create a persistence service (LocalStorage or IndexedDB)
