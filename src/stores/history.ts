@@ -121,9 +121,8 @@ export const useHistoryStore = defineStore('history', () => {
     if (!isBatching.value) return
 
     replaceRef(isBatching, false)
-    if (batchedActions.value.length > 0) {
-      saveSnapshot('BATCH', description)
-    }
+    // Save snapshot for the batched operations
+    saveSnapshot('BATCH', description)
     replaceRef(batchedActions, [])
   }
 

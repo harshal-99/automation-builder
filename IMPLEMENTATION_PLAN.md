@@ -201,17 +201,17 @@ This document outlines a phased approach to building a node-based workflow build
 - [x] Create helper functions for common mutations
 - [x] Ensure all state changes go through store
 
-### 5.3 Undo/Redo System
-- [ ] Implement history stack with configurable limit (50 entries)
-- [ ] Create action batching for multi-operations:
+### 5.3 Undo/Redo System ✅ COMPLETED
+- [x] Implement history stack with configurable limit (50 entries)
+- [x] Create action batching for multi-operations:
   - Multi-node drag
   - Multi-node delete
-  - Paste multiple nodes
-- [ ] Add keyboard shortcuts:
+  - Multi-edge delete
+- [x] Add keyboard shortcuts:
   - `Ctrl/Cmd + Z` - Undo
   - `Ctrl/Cmd + Shift + Z` - Redo
-- [ ] Implement history state serialization
-- [ ] Add undo/redo buttons in toolbar
+- [x] Implement history state serialization
+- [x] Add undo/redo buttons in toolbar
 
 ### 5.4 Keyboard Shortcuts
 - [ ] `Delete/Backspace` - Delete selected

@@ -83,9 +83,30 @@ export const useWorkflowStore = defineStore('workflow', () => {
 		markUpdated()
 	}
 
+	function updateNodePositions(updates: Array<{ nodeId: string; position: { x: number; y: number } }>) {
+		const historyStore = useHistoryStore()
+		
+		// If batching is active, don't save snapshot here (will be saved when batch ends)
+		if (!historyStore.isBatching) {
+			historyStore.saveSnapshot('MOVE_NODE', `Move ${updates.length} node(s)`)
+		}
+
+		updates.forEach(({ nodeId, position }) => {
+			updateArrayItem(nodes, nodeId, (node) => {
+				node.position = position
+			})
+		})
+
+		markUpdated()
+	}
+
 	function deleteNodes(nodeIds: string[]) {
 		const historyStore = useHistoryStore()
-		historyStore.saveSnapshot('DELETE_NODE', `Delete ${nodeIds.length} node(s)`)
+		
+		// If batching is active, don't save snapshot here (will be saved when batch ends)
+		if (!historyStore.isBatching) {
+			historyStore.saveSnapshot('DELETE_NODE', `Delete ${nodeIds.length} node(s)`)
+		}
 
 		filterArrayItems(nodes, (n) => !nodeIds.includes(n.id))
 
@@ -258,6 +279,7 @@ export const useWorkflowStore = defineStore('workflow', () => {
 		addNode,
 		updateNode,
 		updateNodePosition,
+		updateNodePositions,
 		deleteNodes,
 		addEdge,
 		updateEdge,

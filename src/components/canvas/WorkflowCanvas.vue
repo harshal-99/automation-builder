@@ -5,7 +5,7 @@ import {useVueFlow, VueFlow} from '@vue-flow/core'
 import {Background} from '@vue-flow/background'
 import {Controls} from '@vue-flow/controls'
 import {MiniMap} from '@vue-flow/minimap'
-import {useWorkflowStore} from '@/stores'
+import {useWorkflowStore, useHistoryStore} from '@/stores'
 import {nodeTypes} from '@/components/nodes'
 import {edgeTypes} from '@/components/edges'
 import {createEdgeWithLabel, validateConnection, wouldCreateCycle,} from '@/utils/edgeUtils'
@@ -13,6 +13,7 @@ import {createWorkflowNode} from '@/utils/nodeDefinitions'
 import type {NodeType} from '@/types'
 
 const workflowStore = useWorkflowStore()
+const historyStore = useHistoryStore()
 
 // VueFlow instance - use a consistent ID to ensure hooks connect to the same instance
 const vueFlowId = 'workflow-canvas'
@@ -135,9 +136,20 @@ onConnect((connection: Connection) => {
 // Handle node position changes after drag
 onNodeDragStop((event: NodeDragEvent) => {
   const draggedNodes = Array.isArray(event) ? event : [event]
-  draggedNodes.forEach(({node}) => {
-    workflowStore.updateNodePosition(node.id, node.position)
-  })
+  
+  // If multiple nodes were dragged, batch the operation
+  if (draggedNodes.length > 1) {
+    historyStore.startBatch()
+    const updates = draggedNodes.map(({node}) => ({
+      nodeId: node.id,
+      position: node.position,
+    }))
+    workflowStore.updateNodePositions(updates)
+    historyStore.endBatch(`Move ${draggedNodes.length} node(s)`)
+  } else {
+    // Single node drag - update position without batching (no snapshot saved for performance)
+    workflowStore.updateNodePosition(draggedNodes[0].node.id, draggedNodes[0].node.position)
+  }
 })
 
 // Handle viewport changes
@@ -151,23 +163,38 @@ onViewportChange((viewport: ViewportTransform) => {
 
 // Handle node changes (including deletions)
 onNodesChange((changes: NodeChange[]) => {
-  changes.forEach((change) => {
-    if (change.type === 'remove') {
-      workflowStore.deleteNodes([change.id])
+  const removedNodeIds = changes
+    .filter((change) => change.type === 'remove')
+    .map((change) => change.id)
+  
+  if (removedNodeIds.length > 0) {
+    // If multiple nodes are being deleted, batch the operation
+    if (removedNodeIds.length > 1) {
+      historyStore.startBatch()
+      workflowStore.deleteNodes(removedNodeIds)
+      historyStore.endBatch(`Delete ${removedNodeIds.length} node(s)`)
+    } else {
+      workflowStore.deleteNodes(removedNodeIds)
     }
-  })
+  }
 })
 
 // Handle edge changes (including deletions)
 onEdgesChange((changes: EdgeChange[]) => {
-  changes.forEach((change) => {
-    if (change.type === 'remove') {
-      // Don't process removal if we're updating this edge - Vue Flow removes and re-adds during update
-      if (edgeBeingUpdated.value !== change.id) {
-        workflowStore.deleteEdges([change.id])
-      }
+  const removedEdgeIds = changes
+    .filter((change) => change.type === 'remove' && edgeBeingUpdated.value !== change.id)
+    .map((change) => change.id)
+  
+  if (removedEdgeIds.length > 0) {
+    // If multiple edges are being deleted, batch the operation
+    if (removedEdgeIds.length > 1) {
+      historyStore.startBatch()
+      workflowStore.deleteEdges(removedEdgeIds)
+      historyStore.endBatch(`Delete ${removedEdgeIds.length} connection(s)`)
+    } else {
+      workflowStore.deleteEdges(removedEdgeIds)
     }
-  })
+  }
 })
 
 // Handle edge update start - track which edge is being updated

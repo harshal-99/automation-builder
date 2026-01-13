@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import { useWorkflowStore, useHistoryStore } from '@/stores'
 import Button from '@/components/ui/Button.vue'
 import IconButton from '@/components/ui/IconButton.vue'
@@ -12,6 +12,39 @@ import { createWorkflowNode } from '@/utils/nodeDefinitions'
 const workflowStore = useWorkflowStore()
 const historyStore = useHistoryStore()
 
+// Keyboard shortcuts handler
+function handleKeyDown(event: KeyboardEvent) {
+  // Check if user is typing in an input field
+  const target = event.target as HTMLElement
+  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+    // Don't intercept shortcuts when typing in inputs
+    // But still allow undo/redo in text inputs (browser default)
+    if ((event.metaKey || event.ctrlKey) && event.key === 'z' && !event.shiftKey) {
+      // Allow browser's undo in text inputs
+      return
+    }
+    if ((event.metaKey || event.ctrlKey) && event.key === 'z' && event.shiftKey) {
+      // Allow browser's redo in text inputs
+      return
+    }
+    return
+  }
+
+  // Undo: Ctrl/Cmd + Z
+  if ((event.metaKey || event.ctrlKey) && event.key === 'z' && !event.shiftKey) {
+    event.preventDefault()
+    historyStore.undo()
+    return
+  }
+
+  // Redo: Ctrl/Cmd + Shift + Z
+  if ((event.metaKey || event.ctrlKey) && event.key === 'z' && event.shiftKey) {
+    event.preventDefault()
+    historyStore.redo()
+    return
+  }
+}
+
 // Set up history snapshot handlers
 onMounted(() => {
   historyStore.setSnapshotHandlers(
@@ -22,6 +55,9 @@ onMounted(() => {
     }),
     (snapshot) => workflowStore.restoreSnapshot(snapshot)
   )
+
+  // Add keyboard event listener
+  window.addEventListener('keydown', handleKeyDown)
 
   // Add sample nodes for testing (remove in production)
   if (workflowStore.nodes.length === 0) {
@@ -54,6 +90,11 @@ onMounted(() => {
     })
   }
 })
+
+onUnmounted(() => {
+  // Remove keyboard event listener
+  window.removeEventListener('keydown', handleKeyDown)
+})
 </script>
 
 <template>
@@ -72,6 +113,23 @@ onMounted(() => {
         />
       </div>
       <div class="flex items-center gap-2">
+        <!-- Undo/Redo buttons -->
+        <div class="flex items-center gap-1 mr-2 border-r border-gray-700 pr-2">
+          <IconButton
+            title="Undo (Ctrl/Cmd+Z)"
+            :disabled="!historyStore.canUndo"
+            @click="historyStore.undo()"
+          >
+            ↶
+          </IconButton>
+          <IconButton
+            title="Redo (Ctrl/Cmd+Shift+Z)"
+            :disabled="!historyStore.canRedo"
+            @click="historyStore.redo()"
+          >
+            ↷
+          </IconButton>
+        </div>
         <Button>Save</Button>
         <Button variant="primary">Run</Button>
       </div>
