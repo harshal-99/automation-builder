@@ -223,15 +223,15 @@ This document outlines a phased approach to building a node-based workflow build
 - [x] Arrow keys – Nudge selected nodes
 
 ### 5.5 Local Persistence
-- [ ] Create a persistence service (LocalStorage or IndexedDB)
-- [ ] Implement autosave with debouncing (2-second delay)
-- [ ] Add explicit Save/Load buttons
-- [ ] Save workflow state:
+- [x] Create a persistence service (LocalStorage or IndexedDB)
+- [x] Implement autosave with debouncing (2-second delay)
+- [x] Add explicit Save/Load buttons
+- [x] Save workflow state:
   - Nodes and edges
   - Viewport position and zoom
   - Metadata (name, description, timestamps)
-- [ ] Implement workflow list management
-- [ ] Add export/import JSON functionality
+- [x] Implement workflow list management
+- [x] Add export/import JSON functionality
 
 **Deliverables:** Complete state management with undo/redo and persistence
 

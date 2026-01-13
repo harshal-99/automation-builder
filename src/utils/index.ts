@@ -9,3 +9,6 @@ export * from './storeHelpers'
 
 // Workflow utilities
 export * from './workflowUtils'
+
+// Persistence service
+export * from './persistence'

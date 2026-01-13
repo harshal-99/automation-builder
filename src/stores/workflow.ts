@@ -1,6 +1,7 @@
 import {defineStore} from 'pinia'
-import {computed, ref} from 'vue'
+import {computed, ref, watch} from 'vue'
 import {v4 as uuidv4} from 'uuid'
+import {useDebounceFn} from '@vueuse/core'
 import type {ViewportState, WorkflowEdge, WorkflowNode, WorkflowNodeData, WorkflowState,} from '@/types'
 import {useHistoryStore} from './history'
 import {addArrayItem, filterArrayItems, replaceRef, updateArrayItem, updateRef,} from '@/utils/storeHelpers'
@@ -11,6 +12,7 @@ import {
 	getInternalEdges,
 	getNudgeDelta,
 } from '@/utils/workflowUtils'
+import {PersistenceService} from '@/utils/persistence'
 
 const DEFAULT_VIEWPORT: ViewportState = {
 	x: 0,
@@ -58,6 +60,9 @@ export const useWorkflowStore = defineStore('workflow', () => {
 	const hasUnsavedChanges = computed(() => {
 		return updatedAt.value !== createdAt.value
 	})
+
+	const isSaving = ref<boolean>(false)
+	const lastSavedAt = ref<string | null>(null)
 
 	// Actions
 	function addNode(node: Omit<WorkflowNode, 'id'> & { id?: string }) {
@@ -195,6 +200,80 @@ export const useWorkflowStore = defineStore('workflow', () => {
 
 	function markUpdated() {
 		replaceRef(updatedAt, new Date().toISOString())
+		// Trigger autosave
+		autosaveWorkflow()
+	}
+
+	// Autosave with 2-second debounce
+	const autosaveWorkflow = useDebounceFn(() => {
+		try {
+			isSaving.value = true
+			const state = getWorkflowState()
+			PersistenceService.saveWorkflow(state)
+			replaceRef(lastSavedAt, new Date().toISOString())
+		} catch (error) {
+			console.error('[WorkflowStore] Autosave failed:', error)
+		} finally {
+			isSaving.value = false
+		}
+	}, 2000)
+
+	// Watch for name and description changes to trigger autosave
+	watch([name, description], () => {
+		markUpdated()
+	})
+
+	// Explicit save function
+	function saveWorkflow(): boolean {
+		try {
+			isSaving.value = true
+			const state = getWorkflowState()
+			PersistenceService.saveWorkflow(state)
+			replaceRef(lastSavedAt, new Date().toISOString())
+			return true
+		} catch (error) {
+			console.error('[WorkflowStore] Save failed:', error)
+			return false
+		} finally {
+			isSaving.value = false
+		}
+	}
+
+	// Load workflow from storage
+	function loadWorkflowFromStorage(workflowId: string): boolean {
+		try {
+			const workflow = PersistenceService.loadWorkflow(workflowId)
+			if (!workflow) {
+				return false
+			}
+			loadWorkflow(workflow)
+			replaceRef(lastSavedAt, workflow.updatedAt)
+			return true
+		} catch (error) {
+			console.error('[WorkflowStore] Load failed:', error)
+			return false
+		}
+	}
+
+	// Export workflow as JSON
+	function exportWorkflow(): string {
+		const state = getWorkflowState()
+		return PersistenceService.exportWorkflow(state)
+	}
+
+	// Import workflow from JSON
+	function importWorkflow(json: string): boolean {
+		try {
+			const workflow = PersistenceService.importWorkflow(json)
+			if (!workflow) {
+				return false
+			}
+			loadWorkflow(workflow)
+			return true
+		} catch (error) {
+			console.error('[WorkflowStore] Import failed:', error)
+			return false
+		}
 	}
 
 	// Workflow management
@@ -345,6 +424,8 @@ export const useWorkflowStore = defineStore('workflow', () => {
 		selectedEdgeIds,
 		createdAt,
 		updatedAt,
+		isSaving,
+		lastSavedAt,
 
 		// Getters
 		selectedNodes,
@@ -381,5 +462,11 @@ export const useWorkflowStore = defineStore('workflow', () => {
 
 		// Nudge operations
 		nudgeNodes,
+
+		// Persistence operations
+		saveWorkflow,
+		loadWorkflowFromStorage,
+		exportWorkflow,
+		importWorkflow,
 	}
 })
