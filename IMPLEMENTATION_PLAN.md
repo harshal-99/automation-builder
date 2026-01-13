@@ -148,17 +148,18 @@ This document outlines a phased approach to building a node-based workflow build
 - [x] Display node type and metadata
 - [x] Add delete node button in panel
 
-### 4.2 Schema-Driven Form Generation
-- [ ] Create Zod schemas for each node type
-- [ ] Build `SchemaForm.vue` component that generates fields from schema
-- [ ] Implement field types:
-  - Text input
-  - Number input
-  - Select/dropdown
-  - Textarea
-  - Toggle/checkbox
-  - Key-value pairs (for headers)
-  - Expression builder (for conditions)
+### 4.2 Schema-Driven Form Generation ✅ COMPLETED
+- [x] Create Zod schemas for each node type
+- [x] Build `SchemaForm.vue` component that generates fields from schema
+- [x] Implement field types:
+  - [x] Text input
+  - [x] Number input
+  - [x] Select/dropdown
+  - [x] Textarea
+  - [x] Toggle/checkbox
+  - [x] Key-value pairs (for headers)
+  - [x] Expression builder (for conditions)
+  - [x] Array field (for transformations)
 
 ### 4.3 Validation System
 - [ ] Integrate Zod validation with forms
