@@ -116,6 +116,13 @@ export const useWorkflowStore = defineStore('workflow', () => {
   }
 
   function addEdge(edge: Omit<WorkflowEdge, 'id'> & { id?: string }) {
+    // Validate that edge has required source and target
+    if (!edge.source || !edge.target) {
+      console.warn('[WorkflowStore] Cannot add edge without source and target:', edge)
+      console.trace('[WorkflowStore] Stack trace for invalid edge:')
+      return null
+    }
+
     const historyStore = useHistoryStore()
     historyStore.saveSnapshot('ADD_EDGE', 'Connect nodes')
 
@@ -185,7 +192,14 @@ export const useWorkflowStore = defineStore('workflow', () => {
     name.value = workflow.name
     description.value = workflow.description || ''
     nodes.value = workflow.nodes
-    edges.value = workflow.edges
+    // Filter out any invalid edges during load
+    edges.value = workflow.edges.filter((edge) => {
+      if (!edge.source || !edge.target) {
+        console.warn('[WorkflowStore] Filtering out invalid edge during load:', edge)
+        return false
+      }
+      return true
+    })
     viewport.value = workflow.viewport
     createdAt.value = workflow.createdAt
     updatedAt.value = workflow.updatedAt
@@ -221,7 +235,14 @@ export const useWorkflowStore = defineStore('workflow', () => {
   // Restore state from history
   function restoreSnapshot(snapshot: { nodes: WorkflowNode[]; edges: WorkflowEdge[]; viewport: ViewportState }) {
     nodes.value = snapshot.nodes
-    edges.value = snapshot.edges
+    // Filter out any invalid edges during restore
+    edges.value = snapshot.edges.filter((edge) => {
+      if (!edge.source || !edge.target) {
+        console.warn('[WorkflowStore] Filtering out invalid edge during restore:', edge)
+        return false
+      }
+      return true
+    })
     viewport.value = snapshot.viewport
     markUpdated()
   }

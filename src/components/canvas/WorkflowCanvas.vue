@@ -14,16 +14,23 @@ import type {NodeType} from '@/types'
 
 const workflowStore = useWorkflowStore()
 
-// VueFlow instance
+// VueFlow instance - use a consistent ID to ensure hooks connect to the same instance
+const vueFlowId = 'workflow-canvas'
 const {
   onConnect,
   onNodeDragStop,
   onViewportChange,
   onNodesChange,
   onEdgesChange,
+  onEdgeUpdateStart,
+  onEdgeUpdate,
+  onEdgeUpdateEnd,
   fitView,
   project,
-} = useVueFlow()
+} = useVueFlow({id: vueFlowId})
+
+// Track edge being updated to prevent invalid states
+const edgeBeingUpdated = ref<string | null>(null)
 
 // Canvas configuration
 const snapToGrid = ref(true)
@@ -41,29 +48,58 @@ const nodes = computed({
 })
 
 const edges = computed({
-  get: () => workflowStore.edges,
-  set: (_value: Edge[]) => {
-    // Edges are managed through the store, setter is required for v-model
+  get: () => {
+    const storeEdges = workflowStore.edges
+    // Filter out any invalid edges that might have been created
+    return storeEdges.filter((edge) => {
+      if (!edge.source || !edge.target) {
+        console.warn('[WorkflowCanvas] Filtering out invalid edge:', edge)
+        console.trace('[WorkflowCanvas] Stack trace:')
+        return false
+      }
+      return true
+    })
   },
+  set: () => {}
 })
 
 /**
  * Validates if a connection is allowed
  * Used by VueFlow to show visual feedback during dragging
+ * Note: This is called by Vue Flow for both new connections AND existing edges
+ * So we use a lighter validation that doesn't check for duplicates
  */
 function isValidConnection(connection: Connection): boolean {
-  const validationResult = validateConnection(
-      connection,
-      workflowStore.nodes,
-      workflowStore.edges
-  )
+  const {source, target} = connection
 
-  if (!validationResult.valid) {
+  // Must have source and target
+  if (!source || !target) {
     return false
   }
 
-  // Also check for cycles
-  return !wouldCreateCycle(connection, workflowStore.edges);
+  // Cannot connect to self
+  if (source === target) {
+    return false
+  }
+
+  const sourceNode = workflowStore.nodes.find((n) => n.id === source)
+  const targetNode = workflowStore.nodes.find((n) => n.id === target)
+
+  if (!sourceNode || !targetNode) {
+    return false
+  }
+
+  // Also check for cycles (but only for new connections, not existing edges)
+  // We check if this connection already exists - if so, it's an existing edge being validated
+  const isExistingEdge = workflowStore.edges.some(
+      (e) => e.source === source && e.target === target
+  )
+
+  if (!isExistingEdge && wouldCreateCycle(connection, workflowStore.edges)) {
+    return false
+  }
+
+  return true
 }
 
 // Handle new connections
@@ -126,9 +162,49 @@ onNodesChange((changes: NodeChange[]) => {
 onEdgesChange((changes: EdgeChange[]) => {
   changes.forEach((change) => {
     if (change.type === 'remove') {
-      workflowStore.deleteEdges([change.id])
+      // Don't process removal if we're updating this edge - Vue Flow removes and re-adds during update
+      if (edgeBeingUpdated.value !== change.id) {
+        workflowStore.deleteEdges([change.id])
+      }
     }
   })
+})
+
+// Handle edge update start - track which edge is being updated
+onEdgeUpdateStart(({edge}) => {
+  edgeBeingUpdated.value = edge.id
+})
+
+// Handle edge update - validate and apply the update when user drops on a valid handle
+onEdgeUpdate(({edge, connection}) => {
+  // Validate the new connection
+  const validationResult = validateConnection(
+      connection,
+      workflowStore.nodes,
+      // Exclude the current edge from validation to allow reconnecting
+      workflowStore.edges.filter((e) => e.id !== edge.id)
+  )
+
+  if (!validationResult.valid) {
+    return
+  }
+
+  // Check for cycles
+  if (wouldCreateCycle(connection, workflowStore.edges.filter((e) => e.id !== edge.id))) {
+    return
+  }
+
+  // Create the updated edge with proper labeling
+  const updatedEdge = createEdgeWithLabel(connection, workflowStore.nodes)
+
+  // Remove old edge and add the updated one
+  workflowStore.deleteEdges([edge.id])
+  workflowStore.addEdge(updatedEdge)
+})
+
+// Handle edge update end - cleanup tracking state
+onEdgeUpdateEnd(() => {
+  edgeBeingUpdated.value = null
 })
 
 // Handle selection changes (called from template event)
@@ -219,6 +295,7 @@ defineExpose({
       @drop="handleDrop"
   >
     <VueFlow
+        :id="vueFlowId"
         v-model:nodes="nodes"
         v-model:edges="edges"
         :node-types="nodeTypes"
