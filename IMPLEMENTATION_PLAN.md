@@ -196,10 +196,10 @@ This document outlines a phased approach to building a node-based workflow build
 - [x] Create `historyStore` for undo/redo
 - [x] Create `uiStore` for UI state (panel open, palette collapsed, etc.)
 
-### 5.2 Immutable State Updates
-- [ ] Integrate Immer with Pinia actions
-- [ ] Create helper functions for common mutations
-- [ ] Ensure all state changes go through store
+### 5.2 Immutable State Updates ✅ COMPLETED
+- [x] Integrate Immer with Pinia actions
+- [x] Create helper functions for common mutations
+- [x] Ensure all state changes go through store
 
 ### 5.3 Undo/Redo System
 - [ ] Implement history stack with configurable limit (50 entries)

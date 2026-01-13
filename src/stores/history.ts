@@ -6,6 +6,7 @@ import type {
   HistoryActionType,
   WorkflowSnapshot,
 } from '@/types'
+import { updateRef, replaceRef, addArrayItem } from '@/utils/storeHelpers'
 
 const MAX_HISTORY_ENTRIES = 50
 
@@ -42,7 +43,9 @@ export const useHistoryStore = defineStore('history', () => {
 
     // If we're in the middle of the history, remove future entries
     if (currentIndex.value < entries.value.length - 1) {
-      entries.value = entries.value.slice(0, currentIndex.value + 1)
+      updateRef(entries, (draft) => {
+        return draft.slice(0, currentIndex.value + 1)
+      })
     }
 
     const snapshot = getWorkflowSnapshot()
@@ -55,14 +58,18 @@ export const useHistoryStore = defineStore('history', () => {
       snapshot: JSON.parse(JSON.stringify(snapshot)), // Deep clone
     }
 
-    entries.value.push(entry)
+    addArrayItem(entries, entry)
 
     // Limit history size
-    if (entries.value.length > MAX_HISTORY_ENTRIES) {
-      entries.value = entries.value.slice(-MAX_HISTORY_ENTRIES)
-    }
+    updateRef(entries, (draft) => {
+      if (draft.length > MAX_HISTORY_ENTRIES) {
+        const start = draft.length - MAX_HISTORY_ENTRIES
+        return draft.slice(start)
+      }
+      return draft
+    })
 
-    currentIndex.value = entries.value.length - 1
+    replaceRef(currentIndex, entries.value.length - 1)
   }
 
   function undo() {
@@ -70,14 +77,14 @@ export const useHistoryStore = defineStore('history', () => {
 
     // Move to previous entry and restore its state
     if (currentIndex.value > 0) {
-      currentIndex.value--
+      updateRef(currentIndex, (draft) => draft - 1)
       const entry = entries.value[currentIndex.value]
       restoreWorkflowSnapshot(entry.snapshot)
       return true
     } else if (currentIndex.value === 0) {
       // At first entry, we need to restore the state before any actions
       // This requires storing an initial snapshot
-      currentIndex.value = -1
+      replaceRef(currentIndex, -1)
       // Restore empty/initial state
       restoreWorkflowSnapshot({
         nodes: [],
@@ -93,36 +100,36 @@ export const useHistoryStore = defineStore('history', () => {
   function redo() {
     if (!canRedo.value || !restoreWorkflowSnapshot) return false
 
-    currentIndex.value++
+    updateRef(currentIndex, (draft) => draft + 1)
     const entry = entries.value[currentIndex.value]
     restoreWorkflowSnapshot(entry.snapshot)
     return true
   }
 
   function clear() {
-    entries.value = []
-    currentIndex.value = -1
+    replaceRef(entries, [])
+    replaceRef(currentIndex, -1)
   }
 
   // Batching for multi-node operations
   function startBatch() {
-    isBatching.value = true
-    batchedActions.value = []
+    replaceRef(isBatching, true)
+    replaceRef(batchedActions, [])
   }
 
   function endBatch(description: string) {
     if (!isBatching.value) return
 
-    isBatching.value = false
+    replaceRef(isBatching, false)
     if (batchedActions.value.length > 0) {
       saveSnapshot('BATCH', description)
     }
-    batchedActions.value = []
+    replaceRef(batchedActions, [])
   }
 
   function cancelBatch() {
-    isBatching.value = false
-    batchedActions.value = []
+    replaceRef(isBatching, false)
+    replaceRef(batchedActions, [])
   }
 
   return {

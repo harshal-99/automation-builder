@@ -7,6 +7,12 @@ import type {
   NodeExecutionState,
   NodeExecutionStatus,
 } from '@/types'
+import {
+  replaceRef,
+  updateRecordItem,
+  addArrayItem,
+  updateRef,
+} from '@/utils/storeHelpers'
 
 export const useExecutionStore = defineStore('execution', () => {
   // State
@@ -33,83 +39,82 @@ export const useExecutionStore = defineStore('execution', () => {
 
   // Actions
   function startExecution() {
-    status.value = 'running'
-    startedAt.value = new Date().toISOString()
-    completedAt.value = null
-    logs.value = []
-    executionData.value = {}
+    replaceRef(status, 'running')
+    replaceRef(startedAt, new Date().toISOString())
+    replaceRef(completedAt, null)
+    replaceRef(logs, [])
+    replaceRef(executionData, {})
   }
 
   function pauseExecution() {
     if (status.value === 'running') {
-      status.value = 'paused'
+      replaceRef(status, 'paused')
     }
   }
 
   function resumeExecution() {
     if (status.value === 'paused') {
-      status.value = 'running'
+      replaceRef(status, 'running')
     }
   }
 
   function stopExecution() {
-    status.value = 'idle'
-    currentNodeId.value = null
-    completedAt.value = new Date().toISOString()
+    replaceRef(status, 'idle')
+    replaceRef(currentNodeId, null)
+    replaceRef(completedAt, new Date().toISOString())
   }
 
   function completeExecution() {
-    status.value = 'completed'
-    currentNodeId.value = null
-    completedAt.value = new Date().toISOString()
+    replaceRef(status, 'completed')
+    replaceRef(currentNodeId, null)
+    replaceRef(completedAt, new Date().toISOString())
   }
 
   function setError() {
-    status.value = 'error'
-    completedAt.value = new Date().toISOString()
+    replaceRef(status, 'error')
+    replaceRef(completedAt, new Date().toISOString())
   }
 
   function setCurrentNode(nodeId: string | null) {
-    currentNodeId.value = nodeId
+    replaceRef(currentNodeId, nodeId)
   }
 
   function setNodeState(nodeId: string, state: Partial<NodeExecutionState>) {
-    nodeStates.value = {
-      ...nodeStates.value,
-      [nodeId]: {
-        ...nodeStates.value[nodeId],
-        ...state,
-      } as NodeExecutionState,
-    }
-  }
-
-  function addLog(log: Omit<ExecutionLog, 'id' | 'timestamp'>) {
-    logs.value.push({
-      ...log,
-      id: uuidv4(),
-      timestamp: new Date().toISOString(),
+    updateRecordItem(nodeStates, nodeId, (draft) => {
+      if (!draft) {
+        return { ...state } as NodeExecutionState
+      }
+      Object.assign(draft, state)
     })
   }
 
-  function setExecutionData(nodeId: string, data: unknown) {
-    executionData.value = {
-      ...executionData.value,
-      [nodeId]: data,
+  function addLog(log: Omit<ExecutionLog, 'id' | 'timestamp'>) {
+    const newLog: ExecutionLog = {
+      ...log,
+      id: uuidv4(),
+      timestamp: new Date().toISOString(),
     }
+    addArrayItem(logs, newLog)
+  }
+
+  function setExecutionData(nodeId: string, data: unknown) {
+    updateRef(executionData, (draft) => {
+      draft[nodeId] = data
+    })
   }
 
   function setExecutionSpeed(speed: number) {
-    executionSpeed.value = speed
+    replaceRef(executionSpeed, speed)
   }
 
   function reset() {
-    status.value = 'idle'
-    currentNodeId.value = null
-    nodeStates.value = {}
-    logs.value = []
-    executionData.value = {}
-    startedAt.value = null
-    completedAt.value = null
+    replaceRef(status, 'idle')
+    replaceRef(currentNodeId, null)
+    replaceRef(nodeStates, {})
+    replaceRef(logs, [])
+    replaceRef(executionData, {})
+    replaceRef(startedAt, null)
+    replaceRef(completedAt, null)
   }
 
   return {

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { replaceRef } from '@/utils/storeHelpers'
 
 export const useUIStore = defineStore('ui', () => {
   // State
@@ -12,36 +13,36 @@ export const useUIStore = defineStore('ui', () => {
 
   // Actions
   function togglePalette() {
-    isPaletteCollapsed.value = !isPaletteCollapsed.value
+    replaceRef(isPaletteCollapsed, !isPaletteCollapsed.value)
   }
 
   function openConfigPanel() {
-    isConfigPanelOpen.value = true
-    activePanel.value = 'config'
+    replaceRef(isConfigPanelOpen, true)
+    replaceRef(activePanel, 'config')
   }
 
   function closeConfigPanel() {
-    isConfigPanelOpen.value = false
+    replaceRef(isConfigPanelOpen, false)
     if (activePanel.value === 'config') {
-      activePanel.value = null
+      replaceRef(activePanel, null)
     }
   }
 
   function openExecutionPanel() {
-    isExecutionPanelOpen.value = true
-    activePanel.value = 'execution'
+    replaceRef(isExecutionPanelOpen, true)
+    replaceRef(activePanel, 'execution')
   }
 
   function closeExecutionPanel() {
-    isExecutionPanelOpen.value = false
+    replaceRef(isExecutionPanelOpen, false)
     if (activePanel.value === 'execution') {
-      activePanel.value = null
+      replaceRef(activePanel, null)
     }
   }
 
   function setDraggingNode(isDragging: boolean, nodeType: string | null = null) {
-    isDraggingNode.value = isDragging
-    draggedNodeType.value = nodeType
+    replaceRef(isDraggingNode, isDragging)
+    replaceRef(draggedNodeType, nodeType)
   }
 
   return {
