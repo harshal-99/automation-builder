@@ -108,15 +108,19 @@ const iconPath = computed(() => {
 
 <template>
   <div
-    class="relative min-w-45 max-w-60 rounded-lg border-2 shadow-lg transition-all duration-200"
+    role="button"
+    :aria-label="`Node: ${data.label}, Type: ${data.type}, Status: ${nodeExecutionStatus}`"
+    :aria-selected="selected"
+    :tabindex="0"
+    class="relative min-w-45 max-w-60 rounded-lg border-2 shadow-lg transition-all duration-200 focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
     :class="[
       colors.bg,
       colors.border,
       {
         'ring-2 ring-blue-400 ring-offset-2 ring-offset-gray-900 scale-105': selected,
         'opacity-60': !data.isValid,
-        // Execution state visual feedback
-        'ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-900 animate-pulse': isCurrentlyExecuting,
+        // Execution state visual feedback - respect reduced motion
+        'ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-900': isCurrentlyExecuting,
         'opacity-50 grayscale': nodeExecutionStatus === 'skipped',
         'ring-2 ring-green-500 ring-offset-1 ring-offset-gray-900': nodeExecutionStatus === 'success' && !isCurrentlyExecuting,
         'ring-2 ring-red-500 ring-offset-1 ring-offset-gray-900': nodeExecutionStatus === 'error',
@@ -128,16 +132,21 @@ const iconPath = computed(() => {
       v-if="hasInputs"
       type="target"
       :position="Position.Left"
-      class="w-3! h-3! bg-gray-400! border-2! border-gray-600! hover:bg-blue-400! hover:border-blue-500! transition-colors"
+      :aria-label="`Input connection point for ${data.label}`"
+      class="w-3! h-3! bg-gray-400! border-2! border-gray-600! hover:bg-blue-400! hover:border-blue-500! transition-colors focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-1"
     />
 
     <!-- Node Header -->
     <div
+      role="heading"
+      aria-level="3"
       class="flex items-center gap-2 px-3 py-2 rounded-t-md"
       :class="colors.header"
     >
       <!-- Status Indicator -->
       <div
+        role="status"
+        :aria-label="`Node status: ${nodeExecutionStatus}`"
         class="w-2 h-2 rounded-full shrink-0"
         :class="statusColors[nodeExecutionStatus]"
         :title="`Status: ${nodeExecutionStatus}`"
@@ -150,7 +159,7 @@ const iconPath = computed(() => {
       />
 
       <!-- Label -->
-      <span class="text-sm font-medium text-gray-100 truncate">
+      <span class="text-sm font-medium text-gray-100 truncate" :aria-label="`Node name: ${data.label}`">
         {{ data.label }}
       </span>
     </div>
@@ -174,7 +183,8 @@ const iconPath = computed(() => {
         :id="outputHandles[0].id"
         type="source"
         :position="Position.Right"
-        class="w-3! h-3! bg-gray-400! border-2! border-gray-600! hover:bg-blue-400! hover:border-blue-500! transition-colors"
+        :aria-label="`Output connection point for ${data.label}`"
+        class="w-3! h-3! bg-gray-400! border-2! border-gray-600! hover:bg-blue-400! hover:border-blue-500! transition-colors focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-1"
       />
     </template>
 
@@ -186,7 +196,8 @@ const iconPath = computed(() => {
         :id="handle.id"
         type="source"
         :position="Position.Right"
-        class="w-3! h-3! border-2! transition-colors"
+        :aria-label="`${handle.label || 'Output'} connection point for ${data.label}`"
+        class="w-3! h-3! border-2! transition-colors focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-1"
         :class="[
           handle.id === 'true' || handle.id === 'success' || handle.id === 'output'
             ? 'bg-green-500! border-green-600! hover:bg-green-400!'

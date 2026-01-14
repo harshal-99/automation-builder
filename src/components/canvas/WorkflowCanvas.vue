@@ -317,10 +317,16 @@ defineExpose({
 
 <template>
   <div
+      role="application"
+      aria-label="Workflow canvas"
+      aria-describedby="canvas-description"
       class="w-full h-full bg-gray-900"
       @dragover="handleDragOver"
       @drop="handleDrop"
   >
+    <div id="canvas-description" class="sr-only">
+      Interactive workflow canvas. Drag nodes from the palette to add them. Connect nodes by dragging from output handles to input handles. Use keyboard shortcuts for navigation and editing.
+    </div>
     <VueFlow
         :id="vueFlowId"
         v-model:nodes="nodes"
@@ -365,6 +371,7 @@ defineExpose({
           :show-fit-view="true"
           :show-interactive="true"
           position="bottom-left"
+          aria-label="Canvas zoom and pan controls"
       />
 
       <!-- Minimap -->
@@ -376,6 +383,7 @@ defineExpose({
           node-color="var(--color-minimap-node)"
           node-stroke-color="var(--color-minimap-stroke)"
           mask-color="var(--color-minimap-mask)"
+          aria-label="Workflow minimap showing overview of all nodes"
       />
     </VueFlow>
   </div>
@@ -401,6 +409,11 @@ defineExpose({
   background-color: var(--color-controls-border);
   color: var(--color-controls-text-hover);
   fill: var(--color-controls-text-hover);
+}
+
+:deep(.vue-flow__controls-button:focus-visible) {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
 }
 
 /* Custom styles for minimap */

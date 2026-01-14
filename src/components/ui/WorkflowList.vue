@@ -78,30 +78,36 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col h-full">
+  <div class="flex flex-col h-full" role="dialog" aria-modal="true" aria-labelledby="workflow-list-title">
     <div class="flex items-center justify-between p-4 border-b border-gray-700">
-      <h2 class="text-lg font-semibold text-white">Saved Workflows</h2>
-      <IconButton title="Close" @click="emit('close')">×</IconButton>
+      <h2 id="workflow-list-title" class="text-lg font-semibold text-white">Saved Workflows</h2>
+      <IconButton title="Close" aria-label="Close workflow list" @click="emit('close')">×</IconButton>
     </div>
 
     <div class="flex-1 overflow-y-auto p-4">
       <div v-if="isLoading" class="text-center text-gray-400 py-8">
         Loading...
       </div>
-      <div v-else-if="!hasWorkflows" class="text-center text-gray-400 py-8">
+      <div v-else-if="!hasWorkflows" class="text-center text-gray-400 py-8" role="status" aria-live="polite">
         <p>No saved workflows yet.</p>
         <p class="text-sm mt-2">Create a workflow and save it to see it here.</p>
       </div>
-      <div v-else class="space-y-2">
+      <div v-else class="space-y-2" role="list">
         <div
           v-for="workflow in workflows"
           :key="workflow.id"
-          class="p-3 rounded-lg border border-gray-700 hover:border-gray-600 cursor-pointer transition-colors"
+          role="listitem"
+          :aria-label="`Workflow: ${workflow.name}, ${workflow.nodeCount} nodes, ${workflow.edgeCount} connections`"
+          :aria-selected="selectedWorkflowId === workflow.id"
+          tabindex="0"
+          class="p-3 rounded-lg border border-gray-700 hover:border-gray-600 cursor-pointer transition-colors focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
           :class="{
             'bg-gray-800 border-blue-500': selectedWorkflowId === workflow.id,
             'bg-gray-900': selectedWorkflowId !== workflow.id,
           }"
           @click="handleLoadWorkflow(workflow.id)"
+          @keydown.enter="handleLoadWorkflow(workflow.id)"
+          @keydown.space.prevent="handleLoadWorkflow(workflow.id)"
         >
           <div class="flex items-start justify-between">
             <div class="flex-1 min-w-0">

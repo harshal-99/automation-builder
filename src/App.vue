@@ -70,7 +70,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col h-screen w-screen overflow-hidden">
+  <div class="flex flex-col h-screen w-screen overflow-hidden" role="application" aria-label="Workflow Automation Builder">
     <!-- Header -->
     <AppHeader
         :save-status="persistence.saveStatus.value"
@@ -82,7 +82,7 @@ onMounted(() => {
     />
 
     <!-- Main Content -->
-    <main class="flex flex-1 overflow-hidden">
+    <main class="flex flex-1 overflow-hidden" role="main">
       <!-- Left Sidebar - Node Palette -->
       <Sidebar title="Nodes" side="left">
         <NodePalette/>
@@ -114,6 +114,9 @@ onMounted(() => {
     <div
         v-if="persistence.showWorkflowList.value"
         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Workflow list"
         @click.self="persistence.showWorkflowList.value = false"
     >
       <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl h-[80vh] flex flex-col border border-gray-700">

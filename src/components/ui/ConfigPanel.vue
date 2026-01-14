@@ -292,12 +292,14 @@ function resetForm() {
   <div
       v-if="selectedNode?.data?.label && nodeDefinition"
       class="p-4 space-y-4 overflow-y-auto max-h-full"
+      role="region"
+      aria-label="Node configuration panel"
   >
     <!-- Node Header -->
     <div class="space-y-2">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <h3 class="text-sm font-semibold text-white">
+          <h3 class="text-sm font-semibold text-white" :id="`node-title-${selectedNode.id}`">
             {{ selectedNode.data.label }}
           </h3>
           <span
@@ -313,15 +315,17 @@ function resetForm() {
           <button
               v-if="isFormDirty"
               @click="resetForm"
-              class="text-gray-400 hover:text-gray-300 text-xs font-medium transition-colors"
+              class="text-gray-400 hover:text-gray-300 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
               title="Reset changes"
+              aria-label="Reset form changes"
           >
             Reset
           </button>
           <button
               @click="handleDeleteNode"
-              class="text-red-400 hover:text-red-300 text-xs font-medium transition-colors"
+              class="text-red-400 hover:text-red-300 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
               title="Delete node"
+              aria-label="Delete selected node"
           >
             Delete
           </button>
@@ -333,6 +337,8 @@ function resetForm() {
     <!-- Validation Status Banner -->
     <div
         v-if="!isFormValid && errorCount > 0"
+        role="alert"
+        aria-live="polite"
         class="flex items-center gap-2 px-3 py-2 bg-red-900/30 border border-red-700/50 rounded text-xs text-red-300"
     >
       <WarningIcon />
@@ -343,6 +349,7 @@ function resetForm() {
     <div class="pt-2 border-t border-gray-700 space-y-4">
       <div
           class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3"
+          :aria-labelledby="`node-title-${selectedNode.id}`"
       >
         Configuration
       </div>
@@ -366,7 +373,7 @@ function resetForm() {
     <NodeMetadata v-if="selectedNode" :node="selectedNode"/>
   </div>
 
-  <div v-else class="p-4">
+  <div v-else class="p-4" role="status" aria-live="polite">
     <p class="text-xs text-gray-500">Select a node to configure</p>
   </div>
 </template>

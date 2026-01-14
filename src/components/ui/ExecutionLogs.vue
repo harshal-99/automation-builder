@@ -122,22 +122,24 @@ function formatData(data: Record<string, unknown> | undefined): string {
 </script>
 
 <template>
-  <div class="flex flex-col h-full bg-gray-800 text-gray-100">
+  <div class="flex flex-col h-full bg-gray-800 text-gray-100" role="region" aria-label="Execution logs">
     <!-- Header -->
     <div class="flex items-center justify-between px-4 py-3 border-b border-gray-700">
       <h3 class="text-sm font-semibold">Execution Logs</h3>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2" role="toolbar" aria-label="Log actions">
         <button
-          class="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded transition-colors"
+          class="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded transition-colors focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
           title="Export logs"
+          aria-label="Export execution logs"
           :disabled="executionStore.logs.length === 0"
           @click="exportLogs"
         >
           Export
         </button>
         <button
-          class="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded transition-colors"
+          class="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded transition-colors focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
           title="Clear logs"
+          aria-label="Clear all execution logs"
           :disabled="executionStore.logs.length === 0"
           @click="clearLogs"
         >
@@ -147,21 +149,27 @@ function formatData(data: Record<string, unknown> | undefined): string {
     </div>
 
     <!-- Filters -->
-    <div class="flex items-center gap-3 px-4 py-2 border-b border-gray-700 bg-gray-750">
+    <div class="flex items-center gap-3 px-4 py-2 border-b border-gray-700 bg-gray-750" role="search">
       <!-- Search -->
       <div class="flex-1">
+        <label for="log-search" class="sr-only">Search logs</label>
         <input
+          id="log-search"
           v-model="searchQuery"
           type="text"
           placeholder="Search logs..."
-          class="w-full px-3 py-1.5 text-sm bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500 placeholder-gray-400"
+          aria-label="Search execution logs"
+          class="w-full px-3 py-1.5 text-sm bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 placeholder-gray-400"
         />
       </div>
 
       <!-- Status Filter -->
+      <label for="log-status-filter" class="sr-only">Filter by status</label>
       <select
+        id="log-status-filter"
         v-model="statusFilter"
-        class="px-3 py-1.5 text-sm bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500"
+        aria-label="Filter logs by status"
+        class="px-3 py-1.5 text-sm bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800"
       >
         <option v-for="option in statusOptions" :key="option.value" :value="option.value">
           {{ option.label }}
@@ -175,8 +183,10 @@ function formatData(data: Record<string, unknown> | undefined): string {
       <div
         v-if="filteredLogs.length === 0"
         class="flex flex-col items-center justify-center h-full text-gray-500"
+        role="status"
+        aria-live="polite"
       >
-        <IconSvg :path="clipboardIcon" size="w-12 h-12" class="mb-2" />
+        <IconSvg :path="clipboardIcon" size="w-12 h-12" class="mb-2" aria-hidden="true" />
         <p class="text-sm">
           {{ executionStore.logs.length === 0 ? 'No execution logs yet' : 'No matching logs' }}
         </p>
@@ -194,13 +204,20 @@ function formatData(data: Record<string, unknown> | undefined): string {
         >
           <!-- Log header (clickable) -->
           <div
-            class="flex items-center gap-3 px-4 py-2 cursor-pointer"
+            role="button"
+            :aria-label="`${isExpanded(log.id) ? 'Collapse' : 'Expand'} log entry for ${log.nodeName}`"
+            :aria-expanded="isExpanded(log.id)"
+            tabindex="0"
+            class="flex items-center gap-3 px-4 py-2 cursor-pointer focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
             @click="toggleLogExpanded(log.id)"
+            @keydown.enter="toggleLogExpanded(log.id)"
+            @keydown.space.prevent="toggleLogExpanded(log.id)"
           >
             <!-- Expand icon -->
             <span
               class="transition-transform"
               :class="{ 'rotate-90': isExpanded(log.id) }"
+              aria-hidden="true"
             >
               <IconSvg :path="chevronRightIcon" class="text-gray-500" />
             </span>

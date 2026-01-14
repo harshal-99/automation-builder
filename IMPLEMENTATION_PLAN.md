@@ -328,11 +328,11 @@ This document outlines a phased approach to building a node-based workflow build
 
 ## Phase 8: Polish & Documentation
 
-### 8.1 Accessibility (Bonus)
-- [ ] Add focus rings for keyboard navigation
-- [ ] Implement ARIA roles and labels
-- [ ] Support reduced motion preference
-- [ ] Test with screen reader
+### 8.1 Accessibility (Bonus) ✅ COMPLETED
+- [x] Add focus rings for keyboard navigation
+- [x] Implement ARIA roles and labels
+- [x] Support reduced motion preference
+- [x] Test with screen reader
 
 ### 8.2 Performance Optimization (Bonus)
 - [ ] Virtualize node rendering for large graphs

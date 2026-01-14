@@ -129,9 +129,9 @@ function toggleLogsPanel() {
 </script>
 
 <template>
-  <footer class="flex items-center justify-between h-12 px-4 bg-gray-800 border-t border-gray-700">
+  <footer class="flex items-center justify-between h-12 px-4 bg-gray-800 border-t border-gray-700" role="contentinfo">
     <!-- Execution Controls -->
-    <div class="flex items-center gap-1">
+    <div class="flex items-center gap-1" role="toolbar" aria-label="Execution controls">
       <!-- Play/Resume Button -->
       <IconButton
         :title="canResume ? 'Resume' : 'Play'"
@@ -170,10 +170,12 @@ function toggleLogsPanel() {
 
       <!-- Speed Control -->
       <div class="flex items-center gap-1 ml-3 pl-3 border-l border-gray-700">
-        <span class="text-xs text-gray-500 mr-1">Speed:</span>
+        <label for="execution-speed" class="text-xs text-gray-500 mr-1">Speed:</label>
         <select
+          id="execution-speed"
           :value="executionStore.executionSpeed"
-          class="bg-gray-700 text-gray-300 text-xs rounded px-2 py-1 border border-gray-600 focus:outline-none focus:border-blue-500"
+          aria-label="Execution speed"
+          class="bg-gray-700 text-gray-300 text-xs rounded px-2 py-1 border border-gray-600 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800"
           @change="setSpeed(Number(($event.target as HTMLSelectElement).value))"
         >
           <option v-for="option in speedOptions" :key="option.value" :value="option.value">
@@ -189,6 +191,11 @@ function toggleLogsPanel() {
       <div
         v-if="executionStore.status !== 'idle'"
         class="flex items-center gap-2"
+        role="progressbar"
+        :aria-valuenow="progressPercent"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        :aria-label="`Execution progress: ${progressPercent}%`"
       >
         <div class="w-24 h-1.5 bg-gray-700 rounded-full overflow-hidden">
           <div
@@ -206,14 +213,16 @@ function toggleLogsPanel() {
       </div>
 
       <!-- Status Text -->
-      <span :class="['text-xs', statusColor]">{{ statusText }}</span>
+      <span :class="['text-xs', statusColor]" role="status" aria-live="polite">{{ statusText }}</span>
 
       <!-- Logs Toggle Button -->
       <button
-        class="flex items-center gap-1 px-2 py-1 text-xs rounded transition-colors ml-2"
+        class="flex items-center gap-1 px-2 py-1 text-xs rounded transition-colors ml-2 focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
         :class="uiStore.isExecutionPanelOpen
           ? 'bg-blue-600 text-white'
           : 'bg-gray-700 text-gray-300 hover:bg-gray-600'"
+        :aria-label="uiStore.isExecutionPanelOpen ? 'Close execution logs' : 'Open execution logs'"
+        :aria-expanded="uiStore.isExecutionPanelOpen"
         title="Toggle execution logs"
         @click="toggleLogsPanel"
       >

@@ -82,13 +82,16 @@ function handleDragEnd(event: DragEvent) {
 </script>
 
 <template>
-  <div class="flex flex-col h-full">
+  <nav class="flex flex-col h-full" aria-label="Node palette">
     <!-- Search Input -->
     <div class="p-3 border-b border-gray-700">
+      <label for="node-search" class="sr-only">Search nodes</label>
       <input
+          id="node-search"
           v-model="searchQuery"
           type="text"
           placeholder="Search nodes..."
+          aria-label="Search nodes"
           class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       />
     </div>
@@ -100,11 +103,11 @@ function handleDragEnd(event: DragEvent) {
           <!-- Category Header -->
           <div class="px-4 py-2 bg-gray-800 border-b border-gray-700 sticky top-0 z-10">
             <div class="flex items-center gap-2">
-              <span class="text-sm">{{ categoryIcons[category] }}</span>
+              <span class="text-sm" :aria-label="`${categoryLabels[category]} category`">{{ categoryIcons[category] }}</span>
               <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">
                 {{ categoryLabels[category] }}
               </h3>
-              <span class="text-xs text-gray-500 ml-auto">
+              <span class="text-xs text-gray-500 ml-auto" :aria-label="`${filteredNodesByCategory[category].length} nodes in ${categoryLabels[category]} category`">
                 {{ filteredNodesByCategory[category].length }}
               </span>
             </div>
@@ -117,7 +120,11 @@ function handleDragEnd(event: DragEvent) {
                 :key="node.type"
                 draggable="true"
                 :data-node-type="node.type"
-                class="group flex items-start gap-3 p-3 mb-2 bg-gray-700 hover:bg-gray-600 border border-gray-600 hover:border-gray-500 rounded cursor-move transition-colors"
+                role="button"
+                :aria-label="`Add ${node.label} node to canvas`"
+                :aria-describedby="`node-desc-${node.type}`"
+                tabindex="0"
+                class="group flex items-start gap-3 p-3 mb-2 bg-gray-700 hover:bg-gray-600 border border-gray-600 hover:border-gray-500 rounded cursor-move transition-colors focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
                 @dragstart="handleDragStart($event, node.type)"
                 @dragend="handleDragEnd($event)"
             >
@@ -131,7 +138,7 @@ function handleDragEnd(event: DragEvent) {
                 <div class="text-sm font-medium text-white mb-0.5">
                   {{ node.label }}
                 </div>
-                <div class="text-xs text-gray-400 line-clamp-2">
+                <div :id="`node-desc-${node.type}`" class="text-xs text-gray-400 line-clamp-2">
                   {{ node.description }}
                 </div>
               </div>
@@ -144,8 +151,10 @@ function handleDragEnd(event: DragEvent) {
       <div
           v-if="searchQuery && !hasVisibleNodes('trigger') && !hasVisibleNodes('action') && !hasVisibleNodes('logic')"
           class="flex flex-col items-center justify-center py-12 px-4 text-center"
+          role="status"
+          aria-live="polite"
       >
-        <div class="text-4xl mb-2">🔍</div>
+        <div class="text-4xl mb-2" aria-hidden="true">🔍</div>
         <div class="text-sm text-gray-400 mb-1">No nodes found</div>
         <div class="text-xs text-gray-500">Try a different search term</div>
       </div>

@@ -44,11 +44,15 @@ function handleInput(event: Event) {
       :id="id"
       :type="type"
       :value="value"
+      :aria-label="label"
+      :aria-required="required"
+      :aria-invalid="!!error"
+      :aria-describedby="error ? `${id}-error` : undefined"
       @input="handleInput"
       :placeholder="placeholder"
       :min="min"
       :class="[
-        'w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500',
+        'w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800',
         (type === 'url' || placeholder?.includes('data.')) && 'font-mono',
         error && 'border-red-500'
       ]"
@@ -57,11 +61,15 @@ function handleInput(event: Event) {
       v-else-if="type === 'textarea'"
       :id="id"
       :value="value"
+      :aria-label="label"
+      :aria-required="required"
+      :aria-invalid="!!error"
+      :aria-describedby="error ? `${id}-error` : undefined"
       @input="handleInput"
       :rows="rows"
       :placeholder="placeholder"
       :class="[
-        'w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500',
+        'w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800',
         placeholder?.includes('{') && 'font-mono',
         error && 'border-red-500'
       ]"
@@ -70,9 +78,13 @@ function handleInput(event: Event) {
       v-else-if="type === 'select'"
       :id="id"
       :value="value"
+      :aria-label="label"
+      :aria-required="required"
+      :aria-invalid="!!error"
+      :aria-describedby="error ? `${id}-error` : undefined"
       @change="handleInput"
       :class="[
-        'w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white focus:outline-none focus:border-blue-500',
+        'w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800',
         error && 'border-red-500'
       ]"
     >
@@ -80,6 +92,6 @@ function handleInput(event: Event) {
         {{ option.label }}
       </option>
     </select>
-    <p v-if="error" class="text-xs text-red-400 mt-1">{{ error }}</p>
+    <p v-if="error" :id="`${id}-error`" class="text-xs text-red-400 mt-1" role="alert">{{ error }}</p>
   </div>
 </template>
