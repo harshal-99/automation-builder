@@ -239,10 +239,10 @@ This document outlines a phased approach to building a node-based workflow build
 
 ## Phase 6: Run Preview & Simulation
 
-### 6.1 Execution Engine
-- [ ] Create `ExecutionEngine` class
-- [ ] Implement topological sort for execution order
-- [ ] Handle node execution simulation:
+### 6.1 Execution Engine ✅ COMPLETED
+- [x] Create `ExecutionEngine` class
+- [x] Implement topological sort for execution order
+- [x] Handle node execution simulation:
   - Trigger nodes start execution
   - Action nodes simulate API calls (mock responses)
   - Condition nodes evaluate expressions
