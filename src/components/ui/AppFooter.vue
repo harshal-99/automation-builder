@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useExecutionStore, useWorkflowStore } from '@/stores'
+import { useExecutionStore, useWorkflowStore, useUIStore } from '@/stores'
 import { executionEngine } from '@/services'
 import IconButton from './IconButton.vue'
+import { IconSvg } from './icons'
+
+// Icon paths
+const clipboardIcon = 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'
 
 const executionStore = useExecutionStore()
 const workflowStore = useWorkflowStore()
+const uiStore = useUIStore()
 
 // Computed properties for button states
 const canPlay = computed(() => {
@@ -112,6 +117,15 @@ function handleStop() {
     executionEngine.stop()
   }
 }
+
+// Toggle logs panel
+function toggleLogsPanel() {
+  if (uiStore.isExecutionPanelOpen) {
+    uiStore.closeExecutionPanel()
+  } else {
+    uiStore.openExecutionPanel()
+  }
+}
 </script>
 
 <template>
@@ -193,6 +207,26 @@ function handleStop() {
 
       <!-- Status Text -->
       <span :class="['text-xs', statusColor]">{{ statusText }}</span>
+
+      <!-- Logs Toggle Button -->
+      <button
+        class="flex items-center gap-1 px-2 py-1 text-xs rounded transition-colors ml-2"
+        :class="uiStore.isExecutionPanelOpen
+          ? 'bg-blue-600 text-white'
+          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'"
+        title="Toggle execution logs"
+        @click="toggleLogsPanel"
+      >
+        <IconSvg :path="clipboardIcon" size="w-3.5 h-3.5" />
+        Logs
+        <span
+          v-if="executionStore.logs.length > 0"
+          class="px-1.5 py-0.5 text-[10px] font-medium rounded-full"
+          :class="uiStore.isExecutionPanelOpen ? 'bg-blue-500' : 'bg-gray-600'"
+        >
+          {{ executionStore.logs.length }}
+        </span>
+      </button>
     </div>
   </footer>
 </template>

@@ -5,8 +5,21 @@ import type { NodeProps } from '@vue-flow/core'
 import type { WorkflowNodeData, NodeExecutionStatus } from '@/types'
 import { getNodeDefinition } from '@/utils/nodeDefinitions'
 import { IconSvg, ExclamationTriangleIcon } from '@/components/ui/icons'
+import { useExecutionStore } from '@/stores'
 
 const props = defineProps<NodeProps<WorkflowNodeData>>()
+
+const executionStore = useExecutionStore()
+
+// Get the current execution status for this node
+const nodeExecutionStatus = computed<NodeExecutionStatus>(() => {
+  return executionStore.nodeStates[props.id]?.status || 'idle'
+})
+
+// Check if this is the currently executing node
+const isCurrentlyExecuting = computed(() => {
+  return executionStore.currentNodeId === props.id
+})
 
 // Get node definition for handles configuration
 const nodeDefinition = computed(() => getNodeDefinition(props.data.type))
@@ -102,6 +115,11 @@ const iconPath = computed(() => {
       {
         'ring-2 ring-blue-400 ring-offset-2 ring-offset-gray-900 scale-105': selected,
         'opacity-60': !data.isValid,
+        // Execution state visual feedback
+        'ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-900 animate-pulse': isCurrentlyExecuting,
+        'opacity-50 grayscale': nodeExecutionStatus === 'skipped',
+        'ring-2 ring-green-500 ring-offset-1 ring-offset-gray-900': nodeExecutionStatus === 'success' && !isCurrentlyExecuting,
+        'ring-2 ring-red-500 ring-offset-1 ring-offset-gray-900': nodeExecutionStatus === 'error',
       },
     ]"
   >
@@ -121,8 +139,8 @@ const iconPath = computed(() => {
       <!-- Status Indicator -->
       <div
         class="w-2 h-2 rounded-full shrink-0"
-        :class="statusColors.idle"
-        :title="'Status: idle'"
+        :class="statusColors[nodeExecutionStatus]"
+        :title="`Status: ${nodeExecutionStatus}`"
       />
 
       <!-- Icon -->

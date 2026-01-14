@@ -1,13 +1,33 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { EdgeLabelRenderer, getBezierPath } from '@vue-flow/core'
-import type { EdgeProps } from '@vue-flow/core'
+import {computed} from 'vue'
+import type {EdgeProps} from '@vue-flow/core'
+import {EdgeLabelRenderer, getBezierPath} from '@vue-flow/core'
+import {useExecutionStore} from '@/stores'
 
 interface EdgeData {
   condition?: 'true' | 'false'
 }
 
 const props = defineProps<EdgeProps<EdgeData>>()
+
+const executionStore = useExecutionStore()
+
+// Check if this edge is part of the execution path (source node completed)
+const isExecuted = computed(() => {
+  const sourceStatus = executionStore.nodeStates[props.source]?.status
+  return sourceStatus === 'success' || sourceStatus === 'error'
+})
+
+// Check if source node is currently running
+const isActive = computed(() => {
+  return executionStore.currentNodeId === props.source && executionStore.status === 'running'
+})
+
+// Check if the edge leads to a skipped node
+const isSkipped = computed(() => {
+  const targetStatus = executionStore.nodeStates[props.target]?.status
+  return targetStatus === 'skipped'
+})
 
 // Calculate the bezier path for the edge
 const path = computed(() => {
@@ -20,14 +40,32 @@ const path = computed(() => {
     targetPosition: props.targetPosition,
   })
 
-  return { edgePath, labelX, labelY }
+  return {edgePath, labelX, labelY}
 })
 
-// Edge styling based on selection state
-const strokeColor = computed(() =>
-  props.selected ? 'var(--color-edge-selected)' : 'var(--color-edge-default)'
-)
-const strokeWidth = computed(() => (props.selected ? 3 : 2))
+// Edge styling based on selection and execution state
+const strokeColor = computed(() => {
+  if (props.selected) return 'var(--color-edge-selected)'
+  if (isSkipped.value) return 'var(--color-edge-skipped)'
+  if (isActive.value) return 'var(--color-edge-active)'
+  if (isExecuted.value) return 'var(--color-edge-executed)'
+  return 'var(--color-edge-default)'
+})
+
+const strokeWidth = computed(() => {
+  if (props.selected) return 3
+  if (isActive.value || isExecuted.value) return 3
+  return 2
+})
+
+// CSS class for edge animation
+const edgeClass = computed(() => {
+  return {
+    'edge-animated': isActive.value,
+    'edge-executed': isExecuted.value && !isActive.value,
+    'edge-skipped': isSkipped.value,
+  }
+})
 
 // Label styling based on condition
 const labelStyle = computed(() => {
@@ -63,35 +101,36 @@ const showLabel = computed(() => !!props.label)
 <template>
   <!-- Edge Path -->
   <path
-    :id="id"
-    class="vue-flow__edge-path"
-    :d="path.edgePath"
-    :stroke="strokeColor"
-    :stroke-width="strokeWidth"
-    :marker-end="markerEnd"
-    fill="none"
+      :id="id"
+      class="vue-flow__edge-path"
+      :class="edgeClass"
+      :d="path.edgePath"
+      :stroke="strokeColor"
+      :stroke-width="strokeWidth"
+      :marker-end="markerEnd"
+      fill="none"
   />
 
   <!-- Invisible wider path for easier selection -->
   <path
-    :d="path.edgePath"
-    stroke="transparent"
-    stroke-width="20"
-    fill="none"
-    class="vue-flow__edge-interaction"
+      :d="path.edgePath"
+      stroke="transparent"
+      stroke-width="20"
+      fill="none"
+      class="vue-flow__edge-interaction"
   />
 
   <!-- Edge Label -->
   <EdgeLabelRenderer v-if="showLabel">
     <div
-      class="absolute pointer-events-all nodrag nopan"
-      :style="{
+        class="absolute pointer-events-all nodrag nopan"
+        :style="{
         transform: `translate(-50%, -50%) translate(${path.labelX}px, ${path.labelY}px)`,
       }"
     >
       <div
-        class="px-2 py-0.5 rounded-full text-xs font-medium border shadow-sm"
-        :style="{
+          class="px-2 py-0.5 rounded-full text-xs font-medium border shadow-sm"
+          :style="{
           backgroundColor: labelStyle.backgroundColor,
           color: labelStyle.color,
           borderColor: labelStyle.borderColor,
@@ -110,5 +149,31 @@ const showLabel = computed(() => !!props.label)
 
 .vue-flow__edge-interaction {
   cursor: pointer;
+}
+
+/* Animated edge during execution */
+.edge-animated {
+  stroke-dasharray: 5;
+  animation: edge-flow 0.5s linear infinite;
+}
+
+@keyframes edge-flow {
+  from {
+    stroke-dashoffset: 10;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Executed edge */
+.edge-executed {
+  filter: drop-shadow(0 0 2px var(--color-edge-executed-glow));
+}
+
+/* Skipped edge */
+.edge-skipped {
+  opacity: 0.4;
+  stroke-dasharray: 4 2;
 }
 </style>

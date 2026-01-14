@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {onMounted} from 'vue'
-import {useHistoryStore, useWorkflowStore} from '@/stores'
+import {useHistoryStore, useWorkflowStore, useUIStore} from '@/stores'
 import {useKeyboardShortcuts} from '@/composables/useKeyboardShortcuts'
 import {useWorkflowPersistence} from '@/composables/useWorkflowPersistence'
 import Sidebar from '@/components/ui/Sidebar.vue'
@@ -11,11 +11,13 @@ import AppFooter from '@/components/ui/AppFooter.vue'
 import WorkflowList from '@/components/ui/WorkflowList.vue'
 import ExportDialog from '@/components/ui/ExportDialog.vue'
 import ImportDialog from '@/components/ui/ImportDialog.vue'
+import ExecutionLogs from '@/components/ui/ExecutionLogs.vue'
 import {WorkflowCanvas} from '@/components/canvas'
 import {createWorkflowNode} from '@/utils/nodeDefinitions'
 
 const workflowStore = useWorkflowStore()
 const historyStore = useHistoryStore()
+const uiStore = useUIStore()
 
 // Set up keyboard shortcuts
 useKeyboardShortcuts()
@@ -96,6 +98,14 @@ onMounted(() => {
         <ConfigPanel/>
       </Sidebar>
     </main>
+
+    <!-- Execution Logs Panel -->
+    <div
+        v-if="uiStore.isExecutionPanelOpen"
+        class="h-64 border-t border-gray-700 flex-shrink-0"
+    >
+      <ExecutionLogs/>
+    </div>
 
     <!-- Footer -->
     <AppFooter/>

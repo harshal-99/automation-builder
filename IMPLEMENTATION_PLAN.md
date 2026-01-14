@@ -271,25 +271,25 @@ This document outlines a phased approach to building a node-based workflow build
 - [x] Add execution speed control
 - [x] Display current execution progress
 
-### 6.4 Visual Feedback
-- [ ] Highlight currently executing node
-- [ ] Animate edge flow during execution
-- [ ] Show execution path (completed nodes)
-- [ ] Display node status badges
-- [ ] Gray out skipped branches
+### 6.4 Visual Feedback ✅ COMPLETED
+- [x] Highlight currently executing node
+- [x] Animate edge flow during execution
+- [x] Show execution path (completed nodes)
+- [x] Display node status badges
+- [x] Gray out skipped branches
 
-### 6.5 Execution Logs Panel
-- [ ] Create `ExecutionLogs.vue` component
-- [ ] Display per-step logs:
+### 6.5 Execution Logs Panel ✅ COMPLETED
+- [x] Create `ExecutionLogs.vue` component
+- [x] Display per-step logs:
   - Timestamp
   - Node name
   - Status (success/error/skipped)
   - Input data
   - Output data / Error message
-- [ ] Add log filtering and search
-- [ ] Implement log export
+- [x] Add log filtering and search
+- [x] Implement log export
 
-**Deliverables:** Complete run preview with visual simulation
+**Deliverables:** Complete run preview with visual simulation ✅
 
 ---
 
