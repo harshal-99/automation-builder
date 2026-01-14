@@ -295,12 +295,12 @@ This document outlines a phased approach to building a node-based workflow build
 
 ## Phase 7: Testing & Quality
 
-### 7.1 Unit Tests
-- [ ] Test Zod schemas validation
-- [ ] Test store mutations
-- [ ] Test undo/redo logic
-- [ ] Test graph validation (acyclic check)
-- [ ] Test topological sort
+### 7.1 Unit Tests ✅ COMPLETED
+- [x] Test Zod schemas validation
+- [x] Test store mutations
+- [x] Test undo/redo logic
+- [x] Test graph validation (acyclic check)
+- [x] Test topological sort
 
 ### 7.2 Component Tests
 - [ ] Test node components render correctly
