@@ -248,8 +248,8 @@ This document outlines a phased approach to building a node-based workflow build
   - Condition nodes evaluate expressions
   - Transform nodes process data
 
-### 6.2 Execution State
-- [ ] Create `executionStore`:
+### 6.2 Execution State ✅ COMPLETED
+- [x] Create `executionStore`:
   ```typescript
   interface ExecutionState {
     status: 'idle' | 'running' | 'paused' | 'completed' | 'error';
@@ -259,17 +259,17 @@ This document outlines a phased approach to building a node-based workflow build
     executionData: Record<string, any>;
   }
   ```
-- [ ] Track per-node status: pending, running, success, error, skipped
+- [x] Track per-node status: pending, running, success, error, skipped
 
-### 6.3 Preview Controls
-- [ ] Create `ExecutionControls.vue` component
-- [ ] Implement controls:
+### 6.3 Preview Controls ✅ COMPLETED
+- [x] Create `ExecutionControls.vue` component (integrated into AppFooter.vue)
+- [x] Implement controls:
   - **Play** - Start/resume execution
   - **Pause** - Pause at current step
   - **Step** – Execute a single node
   - **Stop** - Reset execution
-- [ ] Add execution speed control
-- [ ] Display current execution progress
+- [x] Add execution speed control
+- [x] Display current execution progress
 
 ### 6.4 Visual Feedback
 - [ ] Highlight currently executing node
