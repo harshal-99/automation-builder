@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted} from 'vue'
+import {onMounted, ref} from 'vue'
 import {useHistoryStore, useWorkflowStore, useUIStore} from '@/stores'
 import {useKeyboardShortcuts} from '@/composables/useKeyboardShortcuts'
 import {useWorkflowPersistence} from '@/composables/useWorkflowPersistence'
@@ -11,6 +11,7 @@ import AppFooter from '@/components/ui/AppFooter.vue'
 import WorkflowList from '@/components/ui/WorkflowList.vue'
 import ExportDialog from '@/components/ui/ExportDialog.vue'
 import ImportDialog from '@/components/ui/ImportDialog.vue'
+import TemplatesDialog from '@/components/ui/TemplatesDialog.vue'
 import ExecutionLogs from '@/components/ui/ExecutionLogs.vue'
 import {WorkflowCanvas} from '@/components/canvas'
 import {createWorkflowNode} from '@/utils/nodeDefinitions'
@@ -24,6 +25,9 @@ useKeyboardShortcuts()
 
 // Set up persistence operations
 const persistence = useWorkflowPersistence()
+
+// Templates dialog state
+const showTemplatesDialog = ref(false)
 
 // Set up history snapshot handlers
 onMounted(() => {
@@ -79,6 +83,7 @@ onMounted(() => {
         @load="persistence.handleLoad"
         @export="persistence.handleExport"
         @import="persistence.handleImport"
+        @templates="showTemplatesDialog = true"
     />
 
     <!-- Main Content -->
@@ -134,6 +139,11 @@ onMounted(() => {
     <ImportDialog
         v-model="persistence.showImportDialog.value"
         @import="() => {}"
+    />
+
+    <!-- Templates Dialog -->
+    <TemplatesDialog
+        v-model="showTemplatesDialog"
     />
   </div>
 </template>

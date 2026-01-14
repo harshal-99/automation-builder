@@ -1,0 +1,112 @@
+{
+  "id": "template-new-lead-welcome",
+  "name": "New Lead Welcome & Follow-up",
+  "description": "Automatically welcome new leads with an initial email, wait 24 hours, then send a follow-up email with additional resources.",
+  "nodes": [
+    {
+      "id": "trigger-1",
+      "type": "workflow-node",
+      "position": {
+        "x": 100,
+        "y": 200
+      },
+      "data": {
+        "label": "Manual Trigger",
+        "type": "manual-trigger",
+        "category": "trigger",
+        "config": {
+          "name": "New Lead Created"
+        },
+        "isValid": true
+      }
+    },
+    {
+      "id": "email-1",
+      "type": "workflow-node",
+      "position": {
+        "x": 350,
+        "y": 200
+      },
+      "data": {
+        "label": "Send Email",
+        "type": "send-email",
+        "category": "action",
+        "config": {
+          "to": "{{lead.email}}",
+          "subject": "Welcome! Thanks for joining us",
+          "body": "Hi {{lead.name}},\n\nWelcome to our platform! We're excited to have you on board.\n\nHere are some resources to get you started:\n- Getting Started Guide\n- Video Tutorials\n- Community Forum\n\nBest regards,\nThe Team",
+          "cc": ""
+        },
+        "isValid": true
+      }
+    },
+    {
+      "id": "delay-1",
+      "type": "workflow-node",
+      "position": {
+        "x": 600,
+        "y": 200
+      },
+      "data": {
+        "label": "Delay",
+        "type": "delay",
+        "category": "action",
+        "config": {
+          "duration": 24,
+          "unit": "hours"
+        },
+        "isValid": true
+      }
+    },
+    {
+      "id": "email-2",
+      "type": "workflow-node",
+      "position": {
+        "x": 850,
+        "y": 200
+      },
+      "data": {
+        "label": "Send Email",
+        "type": "send-email",
+        "category": "action",
+        "config": {
+          "to": "{{lead.email}}",
+          "subject": "How are you getting started?",
+          "body": "Hi {{lead.name}},\n\nWe wanted to check in and see how your onboarding is going. If you have any questions, don't hesitate to reach out!\n\nHere are some additional resources:\n- Advanced Features Guide\n- Best Practices\n- Schedule a Demo\n\nBest regards,\nThe Team",
+          "cc": ""
+        },
+        "isValid": true
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-1",
+      "source": "trigger-1",
+      "target": "email-1",
+      "sourceHandle": "output",
+      "targetHandle": "input"
+    },
+    {
+      "id": "edge-2",
+      "source": "email-1",
+      "target": "delay-1",
+      "sourceHandle": "success",
+      "targetHandle": "input"
+    },
+    {
+      "id": "edge-3",
+      "source": "delay-1",
+      "target": "email-2",
+      "sourceHandle": "output",
+      "targetHandle": "input"
+    }
+  ],
+  "viewport": {
+    "x": 0,
+    "y": 0,
+    "zoom": 1
+  },
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-01T00:00:00.000Z"
+}

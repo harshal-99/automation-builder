@@ -1,0 +1,202 @@
+{
+  "id": "template-abandoned-cart-recovery",
+  "name": "Abandoned Cart Recovery",
+  "description": "Detect abandoned carts, send a recovery email, wait 2 hours, then send an SMS reminder if the cart is still abandoned.",
+  "nodes": [
+    {
+      "id": "webhook-1",
+      "type": "workflow-node",
+      "position": {
+        "x": 100,
+        "y": 200
+      },
+      "data": {
+        "label": "Webhook",
+        "type": "webhook-trigger",
+        "category": "trigger",
+        "config": {
+          "url": "/webhook/cart-abandoned",
+          "method": "POST",
+          "headers": {}
+        },
+        "isValid": true
+      }
+    },
+    {
+      "id": "condition-1",
+      "type": "workflow-node",
+      "position": {
+        "x": 350,
+        "y": 200
+      },
+      "data": {
+        "label": "Condition",
+        "type": "condition",
+        "category": "logic",
+        "config": {
+          "expression": "cart.total",
+          "operator": "greaterThan",
+          "value": 50
+        },
+        "isValid": true
+      }
+    },
+    {
+      "id": "email-1",
+      "type": "workflow-node",
+      "position": {
+        "x": 600,
+        "y": 100
+      },
+      "data": {
+        "label": "Send Email",
+        "type": "send-email",
+        "category": "action",
+        "config": {
+          "to": "{{customer.email}}",
+          "subject": "You left items in your cart!",
+          "body": "Hi {{customer.name}},\n\nWe noticed you left some items in your cart. Don't miss out!\n\nItems:\n{{cart.items}}\n\nTotal: {{cart.total}}\n\nComplete your purchase now: {{cart.url}}\n\nThis offer expires in 24 hours.\n\nBest regards,\nThe Store",
+          "cc": ""
+        },
+        "isValid": true
+      }
+    },
+    {
+      "id": "delay-1",
+      "type": "workflow-node",
+      "position": {
+        "x": 850,
+        "y": 100
+      },
+      "data": {
+        "label": "Delay",
+        "type": "delay",
+        "category": "action",
+        "config": {
+          "duration": 2,
+          "unit": "hours"
+        },
+        "isValid": true
+      }
+    },
+    {
+      "id": "http-1",
+      "type": "workflow-node",
+      "position": {
+        "x": 1100,
+        "y": 100
+      },
+      "data": {
+        "label": "HTTP Request",
+        "type": "http-request",
+        "category": "action",
+        "config": {
+          "url": "https://api.example.com/cart/{{cart.id}}/status",
+          "method": "GET",
+          "headers": {
+            "Authorization": "Bearer {{api.token}}"
+          },
+          "body": "",
+          "timeout": 5000
+        },
+        "isValid": true
+      }
+    },
+    {
+      "id": "condition-2",
+      "type": "workflow-node",
+      "position": {
+        "x": 1350,
+        "y": 100
+      },
+      "data": {
+        "label": "Condition",
+        "type": "condition",
+        "category": "logic",
+        "config": {
+          "expression": "response.status",
+          "operator": "equals",
+          "value": "abandoned"
+        },
+        "isValid": true
+      }
+    },
+    {
+      "id": "sms-1",
+      "type": "workflow-node",
+      "position": {
+        "x": 1600,
+        "y": 50
+      },
+      "data": {
+        "label": "Send SMS",
+        "type": "send-sms",
+        "category": "action",
+        "config": {
+          "phoneNumber": "{{customer.phone}}",
+          "message": "Hi {{customer.name}}, you still have items in your cart! Complete your purchase: {{cart.url}}"
+        },
+        "isValid": true
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-1",
+      "source": "webhook-1",
+      "target": "condition-1",
+      "sourceHandle": "output",
+      "targetHandle": "input"
+    },
+    {
+      "id": "edge-2",
+      "source": "condition-1",
+      "target": "email-1",
+      "sourceHandle": "true",
+      "targetHandle": "input",
+      "label": "Yes",
+      "data": {
+        "condition": "true"
+      }
+    },
+    {
+      "id": "edge-3",
+      "source": "email-1",
+      "target": "delay-1",
+      "sourceHandle": "success",
+      "targetHandle": "input"
+    },
+    {
+      "id": "edge-4",
+      "source": "delay-1",
+      "target": "http-1",
+      "sourceHandle": "output",
+      "targetHandle": "input"
+    },
+    {
+      "id": "edge-5",
+      "source": "http-1",
+      "target": "condition-2",
+      "sourceHandle": "output",
+      "targetHandle": "input"
+    },
+    {
+      "id": "edge-6",
+      "source": "condition-2",
+      "target": "sms-1",
+      "sourceHandle": "true",
+      "targetHandle": "input",
+      "label": "Yes",
+      "data": {
+        "condition": "true"
+      }
+    }
+  ],
+  "viewport": {
+    "x": 0,
+    "y": 0,
+    "zoom": 0.8
+  },
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-01T00:00:00.000Z"
+}

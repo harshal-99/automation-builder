@@ -340,10 +340,10 @@ This document outlines a phased approach to building a node-based workflow build
 - [ ] Test with 200 nodes / 400 edges
 - [ ] Add loading states for heavy operations
 
-### 8.3 Sample Workflows
-- [ ] Create "New Lead Welcome & Follow-up" workflow JSON
-- [ ] Create "Abandoned Cart Recovery" workflow JSON
-- [ ] Add workflow templates to app
+### 8.3 Sample Workflows ✅ COMPLETED
+- [x] Create "New Lead Welcome & Follow-up" workflow JSON
+- [x] Create "Abandoned Cart Recovery" workflow JSON
+- [x] Add workflow templates to app
 
 ### 8.4 Documentation
 - [x] Write README with:

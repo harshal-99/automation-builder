@@ -10,6 +10,7 @@ interface Props {
   onLoad: () => void
   onExport: () => void
   onImport: () => void
+  onTemplates: () => void
 }
 
 defineProps<Props>()
@@ -36,7 +37,7 @@ const historyStore = useHistoryStore()
     </div>
     <div class="flex items-center gap-2">
       <!-- Undo/Redo buttons -->
-      <div class="flex items-center gap-1 mr-2 border-r border-gray-700 pr-2" role="toolbar" aria-label="History controls">
+      <div class="flex items-center gap-1 mr-2 border-r border-gray-700 pr-2" aria-label="History controls">
         <IconButton
           title="Undo (Ctrl/Cmd+Z)"
           aria-label="Undo last action"
@@ -55,12 +56,13 @@ const historyStore = useHistoryStore()
         </IconButton>
       </div>
       <!-- Save status indicator -->
-      <span class="text-xs text-gray-400 mr-2" role="status" aria-live="polite">{{ saveStatus }}</span>
-      <Button @click="onSave" :disabled="isSaving" aria-label="Save workflow">
+      <output class="text-xs text-gray-400 mr-2" aria-live="polite">{{ saveStatus }}</output>
+      <Button @click="onSave" :disabled="isSaving">
         {{ isSaving ? 'Saving...' : 'Save' }}
       </Button>
       <Button @click="onLoad" aria-label="Load workflow">Load</Button>
-      <div class="flex items-center gap-1 border-l border-gray-700 pl-2 ml-1" role="toolbar" aria-label="Import and export controls">
+      <Button @click="onTemplates" aria-label="Open templates">Templates</Button>
+      <div class="flex items-center gap-1 border-l border-gray-700 pl-2 ml-1" aria-label="Import and export controls">
         <IconButton title="Export workflow" aria-label="Export workflow to JSON" @click="onExport">📤</IconButton>
         <IconButton title="Import workflow" aria-label="Import workflow from JSON" @click="onImport">📥</IconButton>
       </div>

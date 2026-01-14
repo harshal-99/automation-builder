@@ -159,7 +159,7 @@ function handleDragEnd(event: DragEvent) {
         <div class="text-xs text-gray-500">Try a different search term</div>
       </div>
     </div>
-  </div>
+  </nav>
 </template>
 
 <style scoped>
