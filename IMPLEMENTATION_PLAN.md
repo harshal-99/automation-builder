@@ -346,12 +346,12 @@ This document outlines a phased approach to building a node-based workflow build
 - [ ] Add workflow templates to app
 
 ### 8.4 Documentation
-- [ ] Write README with:
+- [x] Write README with:
   - Architecture overview
   - State shape documentation
   - How to add a new node type
   - Undo/redo logic explanation
-- [ ] Add inline code comments for complex logic
+- [x] Add inline code comments for complex logic
 
 **Deliverables:** Polished app with documentation and sample workflows
 

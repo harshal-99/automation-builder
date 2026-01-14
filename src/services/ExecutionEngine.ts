@@ -76,19 +76,28 @@ export class ExecutionEngine {
 	/**
 	 * Perform topological sort using Kahn's algorithm
 	 * Returns nodes in execution order, starting from trigger nodes
+	 * 
+	 * Algorithm explanation:
+	 * 1. Calculate in-degree (number of incoming edges) for each node
+	 * 2. Start with nodes that have 0 in-degree (trigger nodes, no dependencies)
+	 * 3. Process each node, decrementing in-degree of its neighbors
+	 * 4. When a neighbor's in-degree reaches 0, add it to the queue
+	 * 5. This ensures nodes are executed only after all dependencies complete
 	 */
 	topologicalSort(): string[] {
-		// Build adjacency list and in-degree map
+		// inDegree: tracks how many incoming edges each node has
+		// adjacencyList: maps each node to its outgoing neighbors
 		const inDegree = new Map<string, number>()
 		const adjacencyList = new Map<string, string[]>()
 
-		// Initialize all nodes with 0 in-degree
+		// Initialize all nodes with 0 in-degree (no incoming edges yet)
 		this.nodes.forEach((node) => {
 			inDegree.set(node.id, 0)
 			adjacencyList.set(node.id, [])
 		})
 
-		// Calculate in-degrees and build adjacency list
+		// Calculate in-degrees and build adjacency list from edges
+		// Each edge increases the target node's in-degree
 		this.edges.forEach((edge) => {
 			const currentInDegree = inDegree.get(edge.target) ?? 0
 			inDegree.set(edge.target, currentInDegree + 1)
@@ -99,6 +108,7 @@ export class ExecutionEngine {
 		})
 
 		// Start with nodes that have no incoming edges (triggers)
+		// These can execute immediately as they have no dependencies
 		const queue: string[] = []
 		inDegree.forEach((degree, nodeId) => {
 			if (degree === 0) {
@@ -106,12 +116,14 @@ export class ExecutionEngine {
 			}
 		})
 
-		// Process queue
+		// Process queue: execute nodes in dependency order
 		const result: string[] = []
 		while (queue.length > 0) {
 			const current = queue.shift()!
 			result.push(current)
 
+			// For each neighbor of the current node, decrement its in-degree
+			// When in-degree reaches 0, the node is ready to execute (all dependencies met)
 			const neighbors = adjacencyList.get(current) ?? []
 			for (const neighbor of neighbors) {
 				const newDegree = (inDegree.get(neighbor) ?? 0) - 1
@@ -122,7 +134,8 @@ export class ExecutionEngine {
 			}
 		}
 
-		// Check for cycles (if result length doesn't match node count)
+		// Check for cycles: if result length doesn't match node count,
+		// there's a cycle (some nodes never reached 0 in-degree)
 		if (result.length !== this.nodes.length) {
 			console.warn('[ExecutionEngine] Graph contains a cycle, some nodes will not be executed')
 		}
@@ -257,7 +270,9 @@ export class ExecutionEngine {
 
 			const result = await this.executeNode(nodeId)
 
-			// Handle conditional branching
+			// Handle conditional branching: if node specifies which handles to follow,
+			// mark all nodes in inactive branches for skipping
+			// Example: Condition node returns nextHandles: ['true'] -> skip 'false' branch
 			if (result.nextHandles && result.nextHandles.length > 0) {
 				const nodesToSkip = this.getNodesToSkipForHandles(nodeId, result.nextHandles)
 				nodesToSkip.forEach((id) => skippedNodes.add(id))
@@ -782,6 +797,13 @@ export class ExecutionEngine {
 
 	/**
 	 * Get nodes that should be skipped based on which handles are NOT being followed
+	 * 
+	 * This implements conditional branching: when a condition node evaluates to 'true',
+	 * we follow the 'true' handle and skip all nodes connected to the 'false' handle.
+	 * 
+	 * Example: Condition node has two outputs: 'true' and 'false'
+	 * - If condition is true, activeHandles = ['true']
+	 * - We skip all nodes connected to 'false' handle and their downstream nodes
 	 */
 	private getNodesToSkipForHandles(nodeId: string, activeHandles: string[]): string[] {
 		const nodesToSkip: string[] = []
@@ -790,18 +812,21 @@ export class ExecutionEngine {
 		const outgoingEdges = this.edges.filter((e) => e.source === nodeId)
 
 		// Find edges that are NOT in the active handles list
+		// These represent branches we're NOT taking (e.g., false branch when condition is true)
 		const inactiveEdges = outgoingEdges.filter((e) => {
 			const handle = e.sourceHandle || 'output'
 			return !activeHandles.includes(handle)
 		})
 
 		// Add target nodes of inactive edges to skip list
+		// Also recursively skip all downstream nodes (entire branch is skipped)
 		for (const edge of inactiveEdges) {
 			nodesToSkip.push(edge.target)
-			// Recursively add all downstream nodes
+			// Recursively add all downstream nodes (entire branch is skipped)
 			nodesToSkip.push(...this.getAllDownstreamNodes(edge.target))
 		}
 
+		// Remove duplicates (a node might be reachable via multiple paths)
 		return [...new Set(nodesToSkip)]
 	}
 

@@ -46,20 +46,30 @@ export function cloneNodesAndEdges(
 
 /**
  * Creates new nodes and edges from clipboard data with new IDs and offset positions
+ * 
+ * This function handles paste/duplicate operations:
+ * 1. Creates a mapping from old node IDs to new UUIDs
+ * 2. Creates new nodes with new IDs and offset positions (so pasted nodes don't overlap)
+ * 3. Creates new edges connecting the new nodes, using the ID mapping
+ * 
+ * Important: Only edges that connect nodes within the clipboard are preserved.
+ * Edges connecting to nodes outside the clipboard are discarded (they would be invalid).
  */
 export function createPastedNodesAndEdges(
 	clipboardNodes: WorkflowNode[],
 	clipboardEdges: WorkflowEdge[],
 	offset: { x: number; y: number }
 ): { nodes: WorkflowNode[]; edges: WorkflowEdge[]; idMap: Map<string, string> } {
-	// Create mapping from old IDs to new IDs
+	// Step 1: Create mapping from old IDs to new IDs
+	// This allows us to update edge source/target references
 	const idMap = new Map<string, string>()
 	clipboardNodes.forEach((node) => {
 		const newId = uuidv4()
 		idMap.set(node.id, newId)
 	})
 
-	// Create new nodes with new IDs and offset positions
+	// Step 2: Create new nodes with new IDs and offset positions
+	// Offset ensures pasted nodes appear next to original (not overlapping)
 	const newNodes: WorkflowNode[] = clipboardNodes.map((node) => ({
 		...node,
 		id: idMap.get(node.id)!,
@@ -69,19 +79,22 @@ export function createPastedNodesAndEdges(
 		},
 	}))
 
-	// Create new edges with new node IDs
+	// Step 3: Create new edges with new node IDs
+	// Only edges where both source and target are in the clipboard are preserved
 	const newEdges: WorkflowEdge[] = clipboardEdges
 		.map((edge) => {
 			const newSource = idMap.get(edge.source)
 			const newTarget = idMap.get(edge.target)
 
+			// If either source or target is missing from the map, the edge is invalid
+			// (it connects to a node outside the clipboard)
 			if (!newSource || !newTarget) {
 				return null
 			}
 
 			return {
 				...edge,
-				id: uuidv4(),
+				id: uuidv4(), // New edge also needs a new ID
 				source: newSource,
 				target: newTarget,
 			}
