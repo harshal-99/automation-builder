@@ -45,7 +45,7 @@ export type HttpRequestConfig = z.infer<typeof httpRequestSchema>
  * Input port, success/error outputs
  */
 export const sendEmailSchema = z.object({
-  to: z.email('Must be a valid email address').min(1, 'Recipient email is required'),
+  to: z.string().min(1, 'Recipient email is required'),
   subject: z.string().min(1, 'Subject is required'),
   body: z.string().min(1, 'Email body is required'),
   cc: z.email('Must be a valid email address').optional().or(z.literal('')),

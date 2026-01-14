@@ -1,21 +1,21 @@
 {
   "id": "template-abandoned-cart-recovery",
-  "name": "Abandoned Cart Recovery",
-  "description": "Detect abandoned carts, send a recovery email, wait 2 hours, then send an SMS reminder if the cart is still abandoned.",
+  "name": "Abandoned Cart Recovery & Inventory Hold",
+  "description": "Webhook trigger (cart event) → Condition (item in stock) → Email #1 (reminder) → Delay (2h) → Condition (still not purchased) → SMS nudge → HTTP create temp discount & hold inventory → Email #2 with code → Delay (24h) → Condition (purchased?) → True: HTTP release hold → Email \"Thanks for your purchase\" -> log analytics; False: HTTP cancel hold -> Email \"Last chance offer\" -> log analytics.",
   "nodes": [
     {
       "id": "webhook-1",
       "type": "workflow-node",
       "position": {
         "x": 100,
-        "y": 200
+        "y": 300
       },
       "data": {
         "label": "Webhook",
         "type": "webhook-trigger",
         "category": "trigger",
         "config": {
-          "url": "/webhook/cart-abandoned",
+          "url": "/webhook/cart-event",
           "method": "POST",
           "headers": {}
         },
@@ -27,16 +27,16 @@
       "type": "workflow-node",
       "position": {
         "x": 350,
-        "y": 200
+        "y": 300
       },
       "data": {
         "label": "Condition",
         "type": "condition",
         "category": "logic",
         "config": {
-          "expression": "cart.total",
-          "operator": "greaterThan",
-          "value": 50
+          "expression": "body",
+          "operator": "is_not_empty",
+          "value": ""
         },
         "isValid": true
       }
@@ -46,7 +46,7 @@
       "type": "workflow-node",
       "position": {
         "x": 600,
-        "y": 100
+        "y": 200
       },
       "data": {
         "label": "Send Email",
@@ -55,7 +55,7 @@
         "config": {
           "to": "{{customer.email}}",
           "subject": "You left items in your cart!",
-          "body": "Hi {{customer.name}},\n\nWe noticed you left some items in your cart. Don't miss out!\n\nItems:\n{{cart.items}}\n\nTotal: {{cart.total}}\n\nComplete your purchase now: {{cart.url}}\n\nThis offer expires in 24 hours.\n\nBest regards,\nThe Store",
+          "body": "Hi {{customer.name}},\n\nWe noticed you left some items in your cart. Don't miss out!\n\nItems:\n{{cart.items}}\n\nTotal: {{cart.total}}\n\nComplete your purchase now: {{cart.url}}\n\nBest regards,\nThe Store",
           "cc": ""
         },
         "isValid": true
@@ -66,7 +66,7 @@
       "type": "workflow-node",
       "position": {
         "x": 850,
-        "y": 100
+        "y": 200
       },
       "data": {
         "label": "Delay",
@@ -74,30 +74,7 @@
         "category": "action",
         "config": {
           "duration": 2,
-          "unit": "hours"
-        },
-        "isValid": true
-      }
-    },
-    {
-      "id": "http-1",
-      "type": "workflow-node",
-      "position": {
-        "x": 1100,
-        "y": 100
-      },
-      "data": {
-        "label": "HTTP Request",
-        "type": "http-request",
-        "category": "action",
-        "config": {
-          "url": "https://api.example.com/cart/{{cart.id}}/status",
-          "method": "GET",
-          "headers": {
-            "Authorization": "Bearer {{api.token}}"
-          },
-          "body": "",
-          "timeout": 5000
+          "unit": "seconds"
         },
         "isValid": true
       }
@@ -106,17 +83,17 @@
       "id": "condition-2",
       "type": "workflow-node",
       "position": {
-        "x": 1350,
-        "y": 100
+        "x": 1100,
+        "y": 200
       },
       "data": {
         "label": "Condition",
         "type": "condition",
         "category": "logic",
         "config": {
-          "expression": "response.status",
-          "operator": "equals",
-          "value": "abandoned"
+          "expression": "timestamp",
+          "operator": "is_not_empty",
+          "value": ""
         },
         "isValid": true
       }
@@ -125,8 +102,8 @@
       "id": "sms-1",
       "type": "workflow-node",
       "position": {
-        "x": 1600,
-        "y": 50
+        "x": 1350,
+        "y": 150
       },
       "data": {
         "label": "Send SMS",
@@ -135,6 +112,223 @@
         "config": {
           "phoneNumber": "{{customer.phone}}",
           "message": "Hi {{customer.name}}, you still have items in your cart! Complete your purchase: {{cart.url}}"
+        },
+        "isValid": true
+      }
+    },
+    {
+      "id": "http-1",
+      "type": "workflow-node",
+      "position": {
+        "x": 1600,
+        "y": 150
+      },
+      "data": {
+        "label": "HTTP Request",
+        "type": "http-request",
+        "category": "action",
+        "config": {
+          "url": "https://api.example.com/cart/{{cart.id}}/discount-and-hold",
+          "method": "POST",
+          "headers": {
+            "Authorization": "Bearer {{api.token}}",
+            "Content-Type": "application/json"
+          },
+          "body": "{\"cartId\": \"{{cart.id}}\", \"discountPercent\": 10, \"holdDuration\": 24}",
+          "timeout": 5000
+        },
+        "isValid": true
+      }
+    },
+    {
+      "id": "email-2",
+      "type": "workflow-node",
+      "position": {
+        "x": 1850,
+        "y": 150
+      },
+      "data": {
+        "label": "Send Email",
+        "type": "send-email",
+        "category": "action",
+        "config": {
+          "to": "{{customer.email}}",
+          "subject": "Special discount code for your cart!",
+          "body": "Hi {{customer.name}},\n\nWe've created a special 10% discount code just for you: {{discount.code}}\n\nYour items are being held for 24 hours. Use this code to complete your purchase:\n{{cart.url}}?code={{discount.code}}\n\nThis offer expires in 24 hours.\n\nBest regards,\nThe Store",
+          "cc": ""
+        },
+        "isValid": true
+      }
+    },
+    {
+      "id": "delay-2",
+      "type": "workflow-node",
+      "position": {
+        "x": 2100,
+        "y": 150
+      },
+      "data": {
+        "label": "Delay",
+        "type": "delay",
+        "category": "action",
+        "config": {
+          "duration": 24,
+          "unit": "seconds"
+        },
+        "isValid": true
+      }
+    },
+    {
+      "id": "condition-3",
+      "type": "workflow-node",
+      "position": {
+        "x": 2350,
+        "y": 150
+      },
+      "data": {
+        "label": "Condition",
+        "type": "condition",
+        "category": "logic",
+        "config": {
+          "expression": "timestamp",
+          "operator": "is_not_empty",
+          "value": ""
+        },
+        "isValid": true
+      }
+    },
+    {
+      "id": "http-2",
+      "type": "workflow-node",
+      "position": {
+        "x": 2600,
+        "y": 50
+      },
+      "data": {
+        "label": "HTTP Request",
+        "type": "http-request",
+        "category": "action",
+        "config": {
+          "url": "https://api.example.com/inventory/{{cart.id}}/release-hold",
+          "method": "POST",
+          "headers": {
+            "Authorization": "Bearer {{api.token}}",
+            "Content-Type": "application/json"
+          },
+          "body": "{\"cartId\": \"{{cart.id}}\"}",
+          "timeout": 5000
+        },
+        "isValid": true
+      }
+    },
+    {
+      "id": "email-3",
+      "type": "workflow-node",
+      "position": {
+        "x": 2850,
+        "y": 50
+      },
+      "data": {
+        "label": "Send Email",
+        "type": "send-email",
+        "category": "action",
+        "config": {
+          "to": "{{customer.email}}",
+          "subject": "Thanks for your purchase!",
+          "body": "Hi {{customer.name}},\n\nThank you for your purchase! We're processing your order and will send you a confirmation shortly.\n\nOrder ID: {{order.id}}\nTotal: {{order.total}}\n\nBest regards,\nThe Store",
+          "cc": ""
+        },
+        "isValid": true
+      }
+    },
+    {
+      "id": "http-3",
+      "type": "workflow-node",
+      "position": {
+        "x": 3100,
+        "y": 50
+      },
+      "data": {
+        "label": "HTTP Request",
+        "type": "http-request",
+        "category": "action",
+        "config": {
+          "url": "https://api.example.com/analytics/log",
+          "method": "POST",
+          "headers": {
+            "Authorization": "Bearer {{api.token}}",
+            "Content-Type": "application/json"
+          },
+          "body": "{\"event\": \"purchase_completed\", \"cartId\": \"{{cart.id}}\", \"orderId\": \"{{order.id}}\"}",
+          "timeout": 5000
+        },
+        "isValid": true
+      }
+    },
+    {
+      "id": "http-4",
+      "type": "workflow-node",
+      "position": {
+        "x": 2600,
+        "y": 250
+      },
+      "data": {
+        "label": "HTTP Request",
+        "type": "http-request",
+        "category": "action",
+        "config": {
+          "url": "https://api.example.com/inventory/{{cart.id}}/cancel-hold",
+          "method": "POST",
+          "headers": {
+            "Authorization": "Bearer {{api.token}}",
+            "Content-Type": "application/json"
+          },
+          "body": "{\"cartId\": \"{{cart.id}}\"}",
+          "timeout": 5000
+        },
+        "isValid": true
+      }
+    },
+    {
+      "id": "email-4",
+      "type": "workflow-node",
+      "position": {
+        "x": 2850,
+        "y": 250
+      },
+      "data": {
+        "label": "Send Email",
+        "type": "send-email",
+        "category": "action",
+        "config": {
+          "to": "{{customer.email}}",
+          "subject": "Last chance offer!",
+          "body": "Hi {{customer.name}},\n\nThis is your last chance! Your cart items are about to be released. Complete your purchase now with your discount code: {{discount.code}}\n\n{{cart.url}}?code={{discount.code}}\n\nBest regards,\nThe Store",
+          "cc": ""
+        },
+        "isValid": true
+      }
+    },
+    {
+      "id": "http-5",
+      "type": "workflow-node",
+      "position": {
+        "x": 3100,
+        "y": 250
+      },
+      "data": {
+        "label": "HTTP Request",
+        "type": "http-request",
+        "category": "action",
+        "config": {
+          "url": "https://api.example.com/analytics/log",
+          "method": "POST",
+          "headers": {
+            "Authorization": "Bearer {{api.token}}",
+            "Content-Type": "application/json"
+          },
+          "body": "{\"event\": \"cart_abandoned\", \"cartId\": \"{{cart.id}}\"}",
+          "timeout": 5000
         },
         "isValid": true
       }
@@ -164,24 +358,18 @@
       "source": "email-1",
       "target": "delay-1",
       "sourceHandle": "success",
-      "targetHandle": "input"
+      "targetHandle": "input",
+      "label": "Success"
     },
     {
       "id": "edge-4",
       "source": "delay-1",
-      "target": "http-1",
-      "sourceHandle": "output",
-      "targetHandle": "input"
-    },
-    {
-      "id": "edge-5",
-      "source": "http-1",
       "target": "condition-2",
       "sourceHandle": "output",
       "targetHandle": "input"
     },
     {
-      "id": "edge-6",
+      "id": "edge-5",
       "source": "condition-2",
       "target": "sms-1",
       "sourceHandle": "true",
@@ -190,12 +378,90 @@
       "data": {
         "condition": "true"
       }
+    },
+    {
+      "id": "edge-6",
+      "source": "sms-1",
+      "target": "http-1",
+      "sourceHandle": "success",
+      "targetHandle": "input"
+    },
+    {
+      "id": "edge-7",
+      "source": "http-1",
+      "target": "email-2",
+      "sourceHandle": "output",
+      "targetHandle": "input"
+    },
+    {
+      "id": "edge-8",
+      "source": "email-2",
+      "target": "delay-2",
+      "sourceHandle": "success",
+      "targetHandle": "input"
+    },
+    {
+      "id": "edge-9",
+      "source": "delay-2",
+      "target": "condition-3",
+      "sourceHandle": "output",
+      "targetHandle": "input"
+    },
+    {
+      "id": "edge-10",
+      "source": "condition-3",
+      "target": "http-2",
+      "sourceHandle": "true",
+      "targetHandle": "input",
+      "label": "True",
+      "data": {
+        "condition": "true"
+      }
+    },
+    {
+      "id": "edge-11",
+      "source": "http-2",
+      "target": "email-3",
+      "sourceHandle": "output",
+      "targetHandle": "input"
+    },
+    {
+      "id": "edge-12",
+      "source": "email-3",
+      "target": "http-3",
+      "sourceHandle": "success",
+      "targetHandle": "input"
+    },
+    {
+      "id": "edge-13",
+      "source": "condition-3",
+      "target": "http-4",
+      "sourceHandle": "false",
+      "targetHandle": "input",
+      "label": "False",
+      "data": {
+        "condition": "false"
+      }
+    },
+    {
+      "id": "edge-14",
+      "source": "http-4",
+      "target": "email-4",
+      "sourceHandle": "output",
+      "targetHandle": "input"
+    },
+    {
+      "id": "edge-15",
+      "source": "email-4",
+      "target": "http-5",
+      "sourceHandle": "success",
+      "targetHandle": "input"
     }
   ],
   "viewport": {
     "x": 0,
     "y": 0,
-    "zoom": 0.8
+    "zoom": 0.5
   },
   "createdAt": "2024-01-01T00:00:00.000Z",
   "updatedAt": "2024-01-01T00:00:00.000Z"

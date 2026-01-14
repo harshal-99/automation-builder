@@ -1,21 +1,23 @@
 {
   "id": "template-new-lead-welcome",
   "name": "New Lead Welcome & Follow-up",
-  "description": "Automatically welcome new leads with an initial email, wait 24 hours, then send a follow-up email with additional resources.",
+  "description": "Webhook trigger (new lead) → Send Email (welcome) → Delay (10 seconds) → HTTP Request (add lead to CRM) → Condition (if response.status == 200) → True branch: Send SMS (success message) → False branch: Send SMS (error alert to support).",
   "nodes": [
     {
-      "id": "trigger-1",
+      "id": "webhook-1",
       "type": "workflow-node",
       "position": {
         "x": 100,
         "y": 200
       },
       "data": {
-        "label": "Manual Trigger",
-        "type": "manual-trigger",
+        "label": "Webhook",
+        "type": "webhook-trigger",
         "category": "trigger",
         "config": {
-          "name": "New Lead Created"
+          "url": "/webhook/new-lead",
+          "method": "POST",
+          "headers": {}
         },
         "isValid": true
       }
@@ -52,28 +54,87 @@
         "type": "delay",
         "category": "action",
         "config": {
-          "duration": 24,
-          "unit": "hours"
+          "duration": 10,
+          "unit": "seconds"
         },
         "isValid": true
       }
     },
     {
-      "id": "email-2",
+      "id": "http-1",
       "type": "workflow-node",
       "position": {
         "x": 850,
         "y": 200
       },
       "data": {
-        "label": "Send Email",
-        "type": "send-email",
+        "label": "HTTP Request",
+        "type": "http-request",
         "category": "action",
         "config": {
-          "to": "{{lead.email}}",
-          "subject": "How are you getting started?",
-          "body": "Hi {{lead.name}},\n\nWe wanted to check in and see how your onboarding is going. If you have any questions, don't hesitate to reach out!\n\nHere are some additional resources:\n- Advanced Features Guide\n- Best Practices\n- Schedule a Demo\n\nBest regards,\nThe Team",
-          "cc": ""
+          "url": "https://api.example.com/crm/leads",
+          "method": "POST",
+          "headers": {
+            "Authorization": "Bearer {{api.token}}",
+            "Content-Type": "application/json"
+          },
+          "body": "{\"name\": \"{{lead.name}}\", \"email\": \"{{lead.email}}\", \"source\": \"{{lead.source}}\"}",
+          "timeout": 5000
+        },
+        "isValid": true
+      }
+    },
+    {
+      "id": "condition-1",
+      "type": "workflow-node",
+      "position": {
+        "x": 1100,
+        "y": 200
+      },
+      "data": {
+        "label": "Condition",
+        "type": "condition",
+        "category": "logic",
+        "config": {
+          "expression": "response.status",
+          "operator": "equals",
+          "value": "200"
+        },
+        "isValid": true
+      }
+    },
+    {
+      "id": "sms-1",
+      "type": "workflow-node",
+      "position": {
+        "x": 1350,
+        "y": 100
+      },
+      "data": {
+        "label": "Send SMS",
+        "type": "send-sms",
+        "category": "action",
+        "config": {
+          "phoneNumber": "{{lead.phone}}",
+          "message": "Hi {{lead.name}}, your account has been successfully created! Welcome aboard!"
+        },
+        "isValid": true
+      }
+    },
+    {
+      "id": "sms-2",
+      "type": "workflow-node",
+      "position": {
+        "x": 1350,
+        "y": 300
+      },
+      "data": {
+        "label": "Send SMS",
+        "type": "send-sms",
+        "category": "action",
+        "config": {
+          "phoneNumber": "{{support.phone}}",
+          "message": "ALERT: Failed to add lead {{lead.email}} to CRM. Status: {{response.status}}. Please investigate."
         },
         "isValid": true
       }
@@ -82,7 +143,7 @@
   "edges": [
     {
       "id": "edge-1",
-      "source": "trigger-1",
+      "source": "webhook-1",
       "target": "email-1",
       "sourceHandle": "output",
       "targetHandle": "input"
@@ -97,15 +158,44 @@
     {
       "id": "edge-3",
       "source": "delay-1",
-      "target": "email-2",
+      "target": "http-1",
       "sourceHandle": "output",
       "targetHandle": "input"
+    },
+    {
+      "id": "edge-4",
+      "source": "http-1",
+      "target": "condition-1",
+      "sourceHandle": "output",
+      "targetHandle": "input"
+    },
+    {
+      "id": "edge-5",
+      "source": "condition-1",
+      "target": "sms-1",
+      "sourceHandle": "true",
+      "targetHandle": "input",
+      "label": "True",
+      "data": {
+        "condition": "true"
+      }
+    },
+    {
+      "id": "edge-6",
+      "source": "condition-1",
+      "target": "sms-2",
+      "sourceHandle": "false",
+      "targetHandle": "input",
+      "label": "False",
+      "data": {
+        "condition": "false"
+      }
     }
   ],
   "viewport": {
     "x": 0,
     "y": 0,
-    "zoom": 1
+    "zoom": 0.8
   },
   "createdAt": "2024-01-01T00:00:00.000Z",
   "updatedAt": "2024-01-01T00:00:00.000Z"
