@@ -42,6 +42,27 @@ const schemaFormRef = ref<InstanceType<typeof SchemaForm> | null>(null)
 // Computed property for error count
 const errorCount = computed(() => Object.keys(formErrors.value).length)
 
+// Safe clone function that handles cases where structuredClone might fail
+function safeClone<T>(obj: T): T {
+  try {
+    return structuredClone(obj)
+  } catch (error) {
+    // Fallback to JSON clone for cases where structuredClone fails (e.g., with reactive proxies)
+    try {
+      return JSON.parse(JSON.stringify(obj)) as T
+    } catch {
+      // If both fail, return a shallow copy
+      if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+        return {...obj} as T
+      }
+      if (Array.isArray(obj)) {
+        return [...obj] as T
+      }
+      return obj
+    }
+  }
+}
+
 // Deep equality check for form configs
 function deepEqual(obj1: unknown, obj2: unknown): boolean {
   if (obj1 === obj2) return true
@@ -80,7 +101,7 @@ function saveFormBeforeSwitch(): boolean {
       config: {...formConfig.value},
       isValid: isFormValid.value,
     } as any)
-    originalFormConfig.value = structuredClone(formConfig.value)
+    originalFormConfig.value = safeClone(formConfig.value)
     return true
   } else {
     // Form has errors, warn user
@@ -115,9 +136,9 @@ function initializeFormForNode(nodeId: string | undefined) {
   if (!nodeId) return
   const node = workflowStore.nodes.find((n) => n.id === nodeId)
   if (node?.data?.config) {
-    const clonedConfig = structuredClone(node.data.config)
+    const clonedConfig = safeClone(node.data.config)
     formConfig.value = clonedConfig
-    originalFormConfig.value = structuredClone(clonedConfig) // Store original for dirty checking
+    originalFormConfig.value = safeClone(clonedConfig) // Store original for dirty checking
     formErrors.value = {}
     isFormValid.value = true
     // Validate after DOM updates
@@ -165,7 +186,7 @@ watch(
             config: {...formConfig.value},
             isValid: isFormValid.value,
           } as any)
-          originalFormConfig.value = structuredClone(formConfig.value)
+          originalFormConfig.value = safeClone(formConfig.value)
         }
         uiStore.closeConfigPanel()
       }
@@ -215,7 +236,7 @@ function debouncedAutoSave(nodeId: string, config: Record<string, unknown>, isVa
       isValid,
     } as any)
     // Update original config after save to reset dirty state
-    originalFormConfig.value = structuredClone(config)
+    originalFormConfig.value = safeClone(config)
     autoSaveTimeout = null
   }, 500)
 }
@@ -249,7 +270,7 @@ function resetForm() {
     : true
 
   if (confirmed) {
-    formConfig.value = structuredClone(originalFormConfig.value)
+    formConfig.value = safeClone(originalFormConfig.value)
     formErrors.value = {}
     isFormValid.value = true
 

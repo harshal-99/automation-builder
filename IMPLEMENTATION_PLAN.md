@@ -302,10 +302,10 @@ This document outlines a phased approach to building a node-based workflow build
 - [x] Test graph validation (acyclic check)
 - [x] Test topological sort
 
-### 7.2 Component Tests
-- [ ] Test node components render correctly
-- [ ] Test config panel form validation
-- [ ] Test palette drag-and-drop
+### 7.2 Component Tests ✅ COMPLETED
+- [x] Test node components render correctly
+- [x] Test config panel form validation
+- [x] Test palette drag-and-drop
 
 ### 7.3 Integration Tests
 - [ ] Test complete flow: create → connect → configure → save → reload
