@@ -207,10 +207,10 @@ defineExpose({ validate })
         <!-- Headers (key-value) field -->
         <template v-else-if="isHeadersFieldDef(def)">
           <div class="space-y-1">
-            <label class="block text-xs font-medium text-gray-300">
+            <div class="block text-xs font-medium text-gray-300">
               {{ def.label }}
               <span v-if="def.required" class="text-red-400">*</span>
-            </label>
+            </div>
             <HeadersEditor
               :headers="(modelValue[key] as Record<string, string>) || {}"
               @update:headers="updateField(key, $event)"

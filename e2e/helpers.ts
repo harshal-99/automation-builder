@@ -12,13 +12,13 @@ export class WorkflowPage {
   }
 
   get nodePalette() {
-    // Left sidebar with "Nodes" title - use aside:has to get the whole sidebar
-    return this.page.locator('aside:has(span:text("Nodes"))')
+    // Left sidebar with "Nodes" title - use aria-label for reliable matching
+    return this.page.locator('aside[aria-label="Nodes"]')
   }
 
   get configPanel() {
-    // Right sidebar with "Configuration" title
-    return this.page.locator('aside:has(span:text("Configuration"))')
+    // Right sidebar with "Configuration" title - use aria-label for reliable matching
+    return this.page.locator('aside[aria-label="Configuration"]')
   }
 
   get header() {

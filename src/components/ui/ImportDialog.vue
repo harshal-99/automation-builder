@@ -19,15 +19,23 @@ const emit = defineEmits<Emits>()
 const workflowStore = useWorkflowStore()
 const importJson = ref('')
 const importError = ref<string | null>(null)
+const dialogRef = ref<HTMLDialogElement | null>(null)
 
 watch(() => props.modelValue, (isOpen) => {
   if (isOpen) {
     importJson.value = ''
     importError.value = null
+    dialogRef.value?.showModal()
+  } else {
+    dialogRef.value?.close()
   }
 })
 
 function close() {
+  emit('update:modelValue', false)
+}
+
+function handleDialogClose() {
   emit('update:modelValue', false)
 }
 
@@ -76,12 +84,11 @@ function handleFileImport(event: Event) {
 </script>
 
 <template>
-  <div
-    v-if="modelValue"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    role="dialog"
-    aria-modal="true"
+  <dialog
+    ref="dialogRef"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop:bg-black backdrop:bg-opacity-50"
     aria-labelledby="import-dialog-title"
+    @close="handleDialogClose"
     @click.self="close"
   >
     <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-3xl h-[80vh] flex flex-col border border-gray-700">
@@ -123,5 +130,5 @@ function handleFileImport(event: Event) {
         <Button @click="close" aria-label="Cancel import">Cancel</Button>
       </div>
     </div>
-  </div>
+  </dialog>
 </template>

@@ -23,6 +23,7 @@ function toggle() {
     emit('update:modelValue', !props.modelValue)
   }
 }
+
 </script>
 
 <template>
@@ -32,11 +33,13 @@ function toggle() {
         {{ fieldDef.label }}
         <span v-if="fieldDef.required" class="text-red-400">*</span>
       </label>
+      <!-- NOSONAR: aria-checked is bound via Vue template syntax -->
       <button
         :id="id"
         type="button"
         role="switch"
         :aria-checked="modelValue"
+        :aria-label="fieldDef.label || 'Toggle'"
         @click="toggle"
         :disabled="disabled"
         :class="[

@@ -36,15 +36,13 @@ function handleLoadWorkflow(workflowId: string) {
   if (success) {
     selectedWorkflowId.value = workflowId
     // Close the list after loading
-    emit('close')
+    handleClose()
   } else {
     alert('Failed to load workflow')
   }
 }
 
-function handleDeleteWorkflow(workflowId: string, event: Event) {
-  event?.stopPropagation()
-
+function handleDeleteWorkflow(workflowId: string) {
   const workflow = workflows.value.find(w => w.id === workflowId)
   const confirmed = confirm(`Are you sure you want to delete "${workflow?.name || 'this workflow'}"?`)
 
@@ -72,35 +70,41 @@ const emit = defineEmits<{
   close: []
 }>()
 
+const dialogRef = ref<HTMLDialogElement | null>(null)
+
+function handleClose() {
+  dialogRef.value?.close()
+  emit('close')
+}
+
 onMounted(() => {
   loadWorkflowList()
   selectedWorkflowId.value = workflowStore.id
+  dialogRef.value?.showModal()
 })
 </script>
 
 <template>
-  <div class="flex flex-col h-full" role="dialog" aria-modal="true" aria-labelledby="workflow-list-title">
+  <dialog ref="dialogRef" class="flex flex-col h-full" aria-labelledby="workflow-list-title">
     <div class="flex items-center justify-between p-4 border-b border-gray-700">
       <h2 id="workflow-list-title" class="text-lg font-semibold text-white">Saved Workflows</h2>
-      <IconButton title="Close" aria-label="Close workflow list" @click="emit('close')">×</IconButton>
+      <IconButton title="Close" aria-label="Close workflow list" @click="handleClose">×</IconButton>
     </div>
 
     <div class="flex-1 overflow-y-auto p-4">
       <div v-if="isLoading" class="flex justify-center py-8">
         <LoadingSpinner size="md" label="Loading workflows..." />
       </div>
-      <div v-else-if="!hasWorkflows" class="text-center text-gray-400 py-8" role="status" aria-live="polite">
+      <output v-else-if="!hasWorkflows" class="text-center text-gray-400 py-8" aria-live="polite">
         <p>No saved workflows yet.</p>
         <p class="text-sm mt-2">Create a workflow and save it to see it here.</p>
-      </div>
-      <div v-else class="space-y-2" role="list">
-        <div
+      </output>
+      <ul v-else class="space-y-2">
+        <li
           v-for="workflow in workflows"
           :key="workflow.id"
-          role="listitem"
           :aria-label="`Workflow: ${workflow.name}, ${workflow.nodeCount} nodes, ${workflow.edgeCount} connections`"
           :aria-selected="selectedWorkflowId === workflow.id"
-          tabindex="0"
           class="p-3 rounded-lg border border-gray-700 hover:border-gray-600 cursor-pointer transition-colors focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
           :class="{
             'bg-gray-800 border-blue-500': selectedWorkflowId === workflow.id,
@@ -125,13 +129,13 @@ onMounted(() => {
             <IconButton
               title="Delete workflow"
               class="ml-2 text-red-400 hover:text-red-300"
-              @click="handleDeleteWorkflow(workflow.id, $event)"
+              @click.stop="handleDeleteWorkflow(workflow.id)"
             >
               🗑
             </IconButton>
           </div>
-        </div>
-      </div>
+        </li>
+      </ul>
     </div>
-  </div>
+  </dialog>
 </template>

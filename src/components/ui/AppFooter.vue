@@ -79,6 +79,21 @@ const statusColor = computed(() => {
   }
 })
 
+const progressColor = computed(() => {
+  switch (executionStore.status) {
+    case 'running':
+      return 'var(--color-status-running)'
+    case 'paused':
+      return 'var(--color-status-paused)'
+    case 'completed':
+      return 'var(--color-status-completed)'
+    case 'error':
+      return 'var(--color-status-error)'
+    default:
+      return 'var(--color-status-idle)'
+  }
+})
+
 // Speed control
 const speedOptions = [
   { label: '0.5x', value: 2000 },
@@ -131,7 +146,7 @@ function toggleLogsPanel() {
 <template>
   <footer class="flex items-center justify-between h-12 px-4 bg-gray-800 border-t border-gray-700" role="contentinfo">
     <!-- Execution Controls -->
-    <div class="flex items-center gap-1" role="toolbar" aria-label="Execution controls">
+    <div class="flex items-center gap-1" aria-label="Execution controls">
       <!-- Play/Resume Button -->
       <IconButton
         :title="canResume ? 'Resume' : 'Play'"
@@ -191,29 +206,20 @@ function toggleLogsPanel() {
       <div
         v-if="executionStore.status !== 'idle'"
         class="flex items-center gap-2"
-        role="progressbar"
-        :aria-valuenow="progressPercent"
-        aria-valuemin="0"
-        aria-valuemax="100"
-        :aria-label="`Execution progress: ${progressPercent}%`"
       >
-        <div class="w-24 h-1.5 bg-gray-700 rounded-full overflow-hidden">
-          <div
-            class="h-full transition-all duration-300"
-            :class="{
-              'bg-blue-500': executionStore.status === 'running',
-              'bg-yellow-500': executionStore.status === 'paused',
-              'bg-green-500': executionStore.status === 'completed',
-              'bg-red-500': executionStore.status === 'error',
-            }"
-            :style="{ width: `${progressPercent}%` }"
-          />
-        </div>
+        <progress
+          class="execution-progress"
+          :style="{ '--progress-color': progressColor }"
+          :value="progressPercent"
+          min="0"
+          max="100"
+          :aria-label="`Execution progress: ${progressPercent}%`"
+        />
         <span class="text-xs text-gray-400">{{ progressPercent }}%</span>
       </div>
 
       <!-- Status Text -->
-      <span :class="['text-xs', statusColor]" role="status" aria-live="polite">{{ statusText }}</span>
+      <output :class="['text-xs', statusColor]" aria-live="polite">{{ statusText }}</output>
 
       <!-- Logs Toggle Button -->
       <button
@@ -239,3 +245,31 @@ function toggleLogsPanel() {
     </div>
   </footer>
 </template>
+
+<style scoped>
+.execution-progress {
+  width: 6rem;
+  height: 0.375rem;
+  border-radius: 9999px;
+  overflow: hidden;
+  background-color: var(--color-progress-bg);
+  border: none;
+}
+
+.execution-progress::-webkit-progress-bar {
+  background-color: var(--color-progress-bg);
+  border-radius: 9999px;
+}
+
+.execution-progress::-webkit-progress-value {
+  background-color: var(--progress-color);
+  border-radius: 9999px;
+  transition: background-color 0.3s;
+}
+
+.execution-progress::-moz-progress-bar {
+  background-color: var(--progress-color);
+  border-radius: 9999px;
+  transition: background-color 0.3s;
+}
+</style>

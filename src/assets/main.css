@@ -64,6 +64,16 @@
 
   /* Shadow color */
   --color-shadow: rgba(0, 0, 0, 0.1);
+
+  /* Footer execution status colors */
+  --color-status-running: #3b82f6; /* blue-500 */
+  --color-status-paused: #eab308; /* yellow-500 */
+  --color-status-completed: #22c55e; /* green-500 */
+  --color-status-error: #ef4444; /* red-500 */
+  --color-status-idle: #6b7280; /* gray-500 */
+
+  /* Footer progress bar background */
+  --color-progress-bg: rgb(55 65 81); /* gray-700 */
 }
 
 

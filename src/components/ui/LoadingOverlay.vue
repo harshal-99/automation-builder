@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, watch } from 'vue'
 import LoadingSpinner from './LoadingSpinner.vue'
 
 interface Props {
@@ -7,20 +8,29 @@ interface Props {
   blur?: boolean
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   message: 'Loading...',
   blur: true,
+})
+
+const dialogRef = ref<HTMLDialogElement | null>(null)
+
+watch(() => props.show, (isOpen) => {
+  if (isOpen) {
+    dialogRef.value?.showModal()
+  } else {
+    dialogRef.value?.close()
+  }
 })
 </script>
 
 <template>
   <Transition name="fade">
-    <div
+    <dialog
       v-if="show"
-      class="absolute inset-0 flex items-center justify-center z-50 bg-gray-900/50"
-      :class="{ 'backdrop-blur-sm': blur }"
-      role="dialog"
-      aria-modal="true"
+      ref="dialogRef"
+      class="absolute inset-0 flex items-center justify-center z-50 bg-gray-900/50 backdrop:bg-gray-900/50"
+      :class="{ 'backdrop-blur-sm backdrop:backdrop-blur-sm': blur }"
       :aria-label="message"
     >
       <div
@@ -28,7 +38,7 @@ withDefaults(defineProps<Props>(), {
       >
         <LoadingSpinner size="lg" :label="message" />
       </div>
-    </div>
+    </dialog>
   </Transition>
 </template>
 

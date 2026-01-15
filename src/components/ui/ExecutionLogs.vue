@@ -122,11 +122,11 @@ function formatData(data: Record<string, unknown> | undefined): string {
 </script>
 
 <template>
-  <div class="flex flex-col h-full bg-gray-800 text-gray-100" role="region" aria-label="Execution logs">
+  <section class="flex flex-col h-full bg-gray-800 text-gray-100" aria-label="Execution logs">
     <!-- Header -->
     <div class="flex items-center justify-between px-4 py-3 border-b border-gray-700">
       <h3 class="text-sm font-semibold">Execution Logs</h3>
-      <div class="flex items-center gap-2" role="toolbar" aria-label="Log actions">
+      <div class="flex items-center gap-2">
         <button
           class="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded transition-colors focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
           title="Export logs"
@@ -180,10 +180,9 @@ function formatData(data: Record<string, unknown> | undefined): string {
     <!-- Log Entries -->
     <div class="flex-1 overflow-y-auto">
       <!-- Empty state -->
-      <div
+      <output
         v-if="filteredLogs.length === 0"
         class="flex flex-col items-center justify-center h-full text-gray-500"
-        role="status"
         aria-live="polite"
       >
         <IconSvg :path="clipboardIcon" size="w-12 h-12" class="mb-2" aria-hidden="true" />
@@ -193,7 +192,7 @@ function formatData(data: Record<string, unknown> | undefined): string {
         <p v-if="executionStore.logs.length === 0" class="text-xs mt-1">
           Run a workflow to see logs here
         </p>
-      </div>
+      </output>
 
       <!-- Log list -->
       <div v-else class="divide-y divide-gray-700">
@@ -203,15 +202,12 @@ function formatData(data: Record<string, unknown> | undefined): string {
           class="hover:bg-gray-750 transition-colors"
         >
           <!-- Log header (clickable) -->
-          <div
-            role="button"
+          <button
+            type="button"
             :aria-label="`${isExpanded(log.id) ? 'Collapse' : 'Expand'} log entry for ${log.nodeName}`"
             :aria-expanded="isExpanded(log.id)"
-            tabindex="0"
-            class="flex items-center gap-3 px-4 py-2 cursor-pointer focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
+            class="w-full flex items-center gap-3 px-4 py-2 cursor-pointer focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2 bg-transparent border-0 text-left"
             @click="toggleLogExpanded(log.id)"
-            @keydown.enter="toggleLogExpanded(log.id)"
-            @keydown.space.prevent="toggleLogExpanded(log.id)"
           >
             <!-- Expand icon -->
             <span
@@ -244,7 +240,7 @@ function formatData(data: Record<string, unknown> | undefined): string {
             <span class="text-xs text-gray-500 ml-auto shrink-0">
               {{ formatDuration(log.duration) }}
             </span>
-          </div>
+          </button>
 
           <!-- Log details (expanded) -->
           <div
@@ -293,7 +289,7 @@ function formatData(data: Record<string, unknown> | undefined): string {
         </template>
       </span>
     </div>
-  </div>
+  </section>
 </template>
 
 <style scoped>

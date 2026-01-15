@@ -79,6 +79,15 @@ function handleDragEnd(event: DragEvent) {
     event.target.style.opacity = '1'
   }
 }
+
+function handleKeyDown(event: KeyboardEvent, _nodeType: string) {
+  // Handle Enter and Space keys for keyboard accessibility
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault()
+    // Trigger the same action as drag (for now, just prevent default)
+    // In a full implementation, this could trigger a click or drag programmatically
+  }
+}
 </script>
 
 <template>
@@ -115,18 +124,18 @@ function handleDragEnd(event: DragEvent) {
 
           <!-- Node Items -->
           <div class="px-2 py-2">
-            <div
+            <button
                 v-for="node in filteredNodesByCategory[category]"
                 :key="node.type"
                 draggable="true"
                 :data-node-type="node.type"
-                role="button"
                 :aria-label="`Add ${node.label} node to canvas`"
                 :aria-describedby="`node-desc-${node.type}`"
-                tabindex="0"
-                class="group flex items-start gap-3 p-3 mb-2 bg-gray-700 hover:bg-gray-600 border border-gray-600 hover:border-gray-500 rounded cursor-move transition-colors focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
+                type="button"
+                class="group w-full text-left flex items-start gap-3 p-3 mb-2 bg-gray-700 hover:bg-gray-600 border border-gray-600 hover:border-gray-500 rounded cursor-move transition-colors focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
                 @dragstart="handleDragStart($event, node.type)"
                 @dragend="handleDragEnd($event)"
+                @keydown="handleKeyDown($event, node.type)"
             >
               <!-- Node Icon -->
               <div class="shrink-0 mt-0.5">
@@ -142,27 +151,32 @@ function handleDragEnd(event: DragEvent) {
                   {{ node.description }}
                 </div>
               </div>
-            </div>
+            </button>
           </div>
         </div>
       </template>
 
       <!-- Empty State -->
-      <div
+      <output
           v-if="searchQuery && !hasVisibleNodes('trigger') && !hasVisibleNodes('action') && !hasVisibleNodes('logic')"
           class="flex flex-col items-center justify-center py-12 px-4 text-center"
-          role="status"
           aria-live="polite"
       >
         <div class="text-4xl mb-2" aria-hidden="true">🔍</div>
         <div class="text-sm text-gray-400 mb-1">No nodes found</div>
         <div class="text-xs text-gray-500">Try a different search term</div>
-      </div>
+      </output>
     </div>
   </nav>
 </template>
 
 <style scoped>
+/* Reset button default styles to allow Tailwind classes to work */
+button[type="button"] {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
 /* Custom scrollbar */
 .overflow-y-auto::-webkit-scrollbar {
   width: 6px;

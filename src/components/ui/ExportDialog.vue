@@ -23,11 +23,10 @@ function close() {
 </script>
 
 <template>
-  <div
+  <dialog
     v-if="modelValue"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    role="dialog"
-    aria-modal="true"
+    :open="modelValue"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop:bg-black backdrop:bg-opacity-50"
     aria-labelledby="export-dialog-title"
     @click.self="close"
   >
@@ -47,9 +46,9 @@ function close() {
         />
       </div>
       <div class="flex items-center justify-end gap-2 p-4 border-t border-gray-700">
-        <Button @click="$emit('download')" aria-label="Download workflow as JSON file">Download JSON</Button>
-        <Button @click="close" aria-label="Close export dialog">Close</Button>
+        <Button @click="$emit('download')">Download JSON</Button>
+        <Button @click="close">Close</Button>
       </div>
     </div>
-  </div>
+  </dialog>
 </template>

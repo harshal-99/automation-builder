@@ -107,12 +107,11 @@ const iconPath = computed(() => {
 </script>
 
 <template>
-  <div
-    role="button"
+  <button
+    type="button"
     :aria-label="`Node: ${data.label}, Type: ${data.type}, Status: ${nodeExecutionStatus}`"
     :aria-selected="selected"
-    :tabindex="0"
-    class="relative min-w-45 max-w-60 rounded-lg border-2 shadow-lg transition-all duration-200 focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
+    class="relative min-w-45 max-w-60 rounded-lg border-2 shadow-lg transition-all duration-200 focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2 p-0 bg-transparent text-left"
     :class="[
       colors.bg,
       colors.border,
@@ -137,17 +136,14 @@ const iconPath = computed(() => {
     />
 
     <!-- Node Header -->
-    <div
-      role="heading"
-      aria-level="3"
-      class="flex items-center gap-2 px-3 py-2 rounded-t-md"
+    <h3
+      class="flex items-center gap-2 px-3 py-2 rounded-t-md m-0 text-base font-normal"
       :class="colors.header"
     >
       <!-- Status Indicator -->
-      <div
-        role="status"
+      <output
         :aria-label="`Node status: ${nodeExecutionStatus}`"
-        class="w-2 h-2 rounded-full shrink-0"
+        class="w-2 h-2 rounded-full shrink-0 block"
         :class="statusColors[nodeExecutionStatus]"
         :title="`Status: ${nodeExecutionStatus}`"
       />
@@ -162,7 +158,7 @@ const iconPath = computed(() => {
       <span class="text-sm font-medium text-gray-100 truncate" :aria-label="`Node name: ${data.label}`">
         {{ data.label }}
       </span>
-    </div>
+    </h3>
 
     <!-- Node Body -->
     <div class="px-3 py-2 text-xs text-gray-400">
@@ -224,5 +220,5 @@ const iconPath = computed(() => {
         {{ handle.label }}
       </div>
     </template>
-  </div>
+  </button>
 </template>

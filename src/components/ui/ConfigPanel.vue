@@ -289,10 +289,9 @@ function resetForm() {
 </script>
 
 <template>
-  <div
+  <section
       v-if="selectedNode?.data?.label && nodeDefinition"
       class="p-4 space-y-4 overflow-y-auto max-h-full"
-      role="region"
       aria-label="Node configuration panel"
   >
     <!-- Node Header -->
@@ -371,9 +370,7 @@ function resetForm() {
 
     <!-- Node Metadata -->
     <NodeMetadata v-if="selectedNode" :node="selectedNode"/>
-  </div>
+  </section>
 
-  <div v-else class="p-4" role="status" aria-live="polite">
-    <p class="text-xs text-gray-500">Select a node to configure</p>
-  </div>
+  <output v-else class="p-4 block text-xs text-gray-500" aria-live="polite">Select a node to configure</output>
 </template>

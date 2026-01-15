@@ -17,9 +17,8 @@ const sizeClasses = {
 </script>
 
 <template>
-  <div
+  <output
     class="flex flex-col items-center justify-center gap-2"
-    role="status"
     aria-live="polite"
   >
     <div
@@ -31,7 +30,7 @@ const sizeClasses = {
     />
     <span v-if="label" class="text-sm text-gray-400">{{ label }}</span>
     <span class="sr-only">{{ label || 'Loading' }}</span>
-  </div>
+  </output>
 </template>
 
 <style scoped>
