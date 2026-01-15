@@ -116,18 +116,10 @@ onMounted(() => {
     <AppFooter/>
 
     <!-- Workflow List Modal -->
-    <div
+    <WorkflowList
         v-if="persistence.showWorkflowList.value"
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Workflow list"
-        @click.self="persistence.showWorkflowList.value = false"
-    >
-      <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl h-[80vh] flex flex-col border border-gray-700">
-        <WorkflowList @close="persistence.showWorkflowList.value = false"/>
-      </div>
-    </div>
+        @close="persistence.showWorkflowList.value = false"
+    />
 
     <!-- Export Dialog -->
     <ExportDialog

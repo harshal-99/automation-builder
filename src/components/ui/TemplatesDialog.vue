@@ -50,7 +50,8 @@ function handleLoadTemplate(templateId: string) {
 <template>
   <dialog
     v-if="modelValue"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    :open="modelValue"
+    class="fixed top-0 left-0 right-0 bottom-0 w-screen h-screen bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop:bg-black backdrop:bg-opacity-50 m-0 p-0"
     aria-modal="true"
     aria-labelledby="templates-dialog-title"
     @click.self="close"

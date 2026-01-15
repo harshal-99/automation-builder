@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch } from 'vue'
 import { useWorkflowStore } from '@/stores'
 import Button from './Button.vue'
 import IconButton from './IconButton.vue'
@@ -19,24 +19,15 @@ const emit = defineEmits<Emits>()
 const workflowStore = useWorkflowStore()
 const importJson = ref('')
 const importError = ref<string | null>(null)
-const dialogRef = ref<HTMLDialogElement | null>(null)
 
-watch(() => props.modelValue, async (isOpen) => {
+watch(() => props.modelValue, (isOpen) => {
   if (isOpen) {
     importJson.value = ''
     importError.value = null
-    await nextTick()
-    dialogRef.value?.showModal()
-  } else {
-    dialogRef.value?.close()
   }
 })
 
 function close() {
-  emit('update:modelValue', false)
-}
-
-function handleDialogClose() {
   emit('update:modelValue', false)
 }
 
@@ -87,10 +78,9 @@ function handleFileImport(event: Event) {
 <template>
   <dialog
     v-if="modelValue"
-    ref="dialogRef"
+    :open="modelValue"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop:bg-black backdrop:bg-opacity-50"
     aria-labelledby="import-dialog-title"
-    @close="handleDialogClose"
     @click.self="close"
   >
     <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-3xl h-[80vh] flex flex-col border border-gray-700">

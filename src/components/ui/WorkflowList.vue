@@ -80,18 +80,24 @@ function handleClose() {
 onMounted(() => {
   loadWorkflowList()
   selectedWorkflowId.value = workflowStore.id
-  dialogRef.value?.showModal()
 })
 </script>
 
 <template>
-  <dialog ref="dialogRef" class="flex flex-col h-full" aria-labelledby="workflow-list-title">
-    <div class="flex items-center justify-between p-4 border-b border-gray-700">
-      <h2 id="workflow-list-title" class="text-lg font-semibold text-white">Saved Workflows</h2>
-      <IconButton title="Close" aria-label="Close workflow list" @click="handleClose">×</IconButton>
-    </div>
+  <dialog
+    ref="dialogRef"
+    :open="true"
+    class="fixed top-0 left-0 right-0 bottom-0 w-screen h-screen bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop:bg-black backdrop:bg-opacity-50 m-0 p-0"
+    aria-labelledby="workflow-list-title"
+    @click.self="handleClose"
+  >
+    <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl h-[80vh] flex flex-col border border-gray-700">
+      <div class="flex items-center justify-between p-4 border-b border-gray-700">
+        <h2 id="workflow-list-title" class="text-lg font-semibold text-white">Saved Workflows</h2>
+        <IconButton title="Close" aria-label="Close workflow list" @click="handleClose">×</IconButton>
+      </div>
 
-    <div class="flex-1 overflow-y-auto p-4">
+      <div class="flex-1 overflow-y-auto p-4">
       <div v-if="isLoading" class="flex justify-center py-8">
         <LoadingSpinner size="md" label="Loading workflows..." />
       </div>
@@ -136,6 +142,7 @@ onMounted(() => {
           </div>
         </li>
       </ul>
+      </div>
     </div>
   </dialog>
 </template>
