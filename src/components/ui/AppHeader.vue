@@ -2,6 +2,7 @@
 import { useWorkflowStore, useHistoryStore } from '@/stores'
 import Button from './Button.vue'
 import IconButton from './IconButton.vue'
+import LoadingSpinner from './LoadingSpinner.vue'
 
 interface Props {
   saveStatus: string
@@ -57,8 +58,9 @@ const historyStore = useHistoryStore()
       </div>
       <!-- Save status indicator -->
       <output class="text-xs text-gray-400 mr-2" aria-live="polite">{{ saveStatus }}</output>
-      <Button @click="onSave" :disabled="isSaving">
-        {{ isSaving ? 'Saving...' : 'Save' }}
+      <Button @click="onSave" :disabled="isSaving" class="min-w-17.5">
+        <LoadingSpinner v-if="isSaving" size="sm" />
+        <span v-else>Save</span>
       </Button>
       <Button @click="onLoad" aria-label="Load workflow">Load</Button>
       <Button @click="onTemplates" aria-label="Open templates">Templates</Button>

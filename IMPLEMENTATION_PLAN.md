@@ -334,11 +334,11 @@ This document outlines a phased approach to building a node-based workflow build
 - [x] Support reduced motion preference
 - [x] Test with screen reader
 
-### 8.2 Performance Optimization (Bonus)
-- [ ] Virtualize node rendering for large graphs
-- [ ] Optimize re-renders with `shallowRef`
-- [ ] Test with 200 nodes / 400 edges
-- [ ] Add loading states for heavy operations
+### 8.2 Performance Optimization (Bonus) ✅ COMPLETED
+- [x] Virtualize node rendering for large graphs
+- [x] Optimize re-renders with `shallowRef`
+- [x] Test with 200 nodes / 400 edges
+- [x] Add loading states for heavy operations
 
 ### 8.3 Sample Workflows ✅ COMPLETED
 - [x] Create "New Lead Welcome & Follow-up" workflow JSON

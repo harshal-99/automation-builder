@@ -352,6 +352,7 @@ defineExpose({
         :edges-updatable="true"
         :is-valid-connection="isValidConnection"
         :default-edge-options="{ type: 'labeled' }"
+        :only-render-visible-elements="true"
         fit-view-on-init
         class="h-full w-full"
         @selection-change="handleSelectionChange"

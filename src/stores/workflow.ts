@@ -1,5 +1,5 @@
 import {defineStore} from 'pinia'
-import {computed, ref, watch} from 'vue'
+import {computed, ref, shallowRef, watch} from 'vue'
 import {v4 as uuidv4} from 'uuid'
 import {useDebounceFn} from '@vueuse/core'
 import type {ViewportState, WorkflowEdge, WorkflowNode, WorkflowNodeData, WorkflowState,} from '@/types'
@@ -25,8 +25,10 @@ export const useWorkflowStore = defineStore('workflow', () => {
 	const id = ref<string>(uuidv4())
 	const name = ref<string>('Untitled Workflow')
 	const description = ref<string>('')
-	const nodes = ref<WorkflowNode[]>([])
-	const edges = ref<WorkflowEdge[]>([])
+	// Use shallowRef for better performance with large arrays
+	// Immer-based helpers already create new array references on updates
+	const nodes = shallowRef<WorkflowNode[]>([])
+	const edges = shallowRef<WorkflowEdge[]>([])
 	const viewport = ref<ViewportState>({...DEFAULT_VIEWPORT})
 	const selectedNodeIds = ref<string[]>([])
 	const selectedEdgeIds = ref<string[]>([])

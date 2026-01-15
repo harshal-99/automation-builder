@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { PersistenceService, type WorkflowListItem } from '@/utils/persistence'
 import { useWorkflowStore } from '@/stores/workflow'
 import IconButton from './IconButton.vue'
+import LoadingSpinner from './LoadingSpinner.vue'
 
 const workflowStore = useWorkflowStore()
 
@@ -85,8 +86,8 @@ onMounted(() => {
     </div>
 
     <div class="flex-1 overflow-y-auto p-4">
-      <div v-if="isLoading" class="text-center text-gray-400 py-8">
-        Loading...
+      <div v-if="isLoading" class="flex justify-center py-8">
+        <LoadingSpinner size="md" label="Loading workflows..." />
       </div>
       <div v-else-if="!hasWorkflows" class="text-center text-gray-400 py-8" role="status" aria-live="polite">
         <p>No saved workflows yet.</p>

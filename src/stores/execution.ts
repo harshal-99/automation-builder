@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, shallowRef, computed } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 import type {
   ExecutionStatus,
@@ -18,9 +18,11 @@ export const useExecutionStore = defineStore('execution', () => {
   // State
   const status = ref<ExecutionStatus>('idle')
   const currentNodeId = ref<string | null>(null)
-  const nodeStates = ref<Record<string, NodeExecutionState>>({})
+  // Use shallowRef for better performance with large records
+  // Store helpers create new object references on updates
+  const nodeStates = shallowRef<Record<string, NodeExecutionState>>({})
   const logs = ref<ExecutionLog[]>([])
-  const executionData = ref<Record<string, unknown>>({})
+  const executionData = shallowRef<Record<string, unknown>>({})
   const startedAt = ref<string | null>(null)
   const completedAt = ref<string | null>(null)
   const executionSpeed = ref<number>(1000) // ms between steps
