@@ -15,6 +15,7 @@ import TemplatesDialog from '@/components/ui/TemplatesDialog.vue'
 import ExecutionLogs from '@/components/ui/ExecutionLogs.vue'
 import {WorkflowCanvas} from '@/components/canvas'
 import {createWorkflowNode} from '@/utils/nodeDefinitions'
+import {executionEngine} from '@/services'
 
 const workflowStore = useWorkflowStore()
 const historyStore = useHistoryStore()
@@ -28,6 +29,11 @@ const persistence = useWorkflowPersistence()
 
 // Templates dialog state
 const showTemplatesDialog = ref(false)
+
+// Execution handler
+async function handleRun() {
+  await executionEngine.start()
+}
 
 // Set up history snapshot handlers
 onMounted(() => {
@@ -84,6 +90,7 @@ onMounted(() => {
         @export="persistence.handleExport"
         @import="persistence.handleImport"
         @templates="showTemplatesDialog = true"
+        @run="handleRun"
     />
 
     <!-- Main Content -->

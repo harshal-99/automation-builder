@@ -12,6 +12,7 @@ interface Props {
   onExport: () => void
   onImport: () => void
   onTemplates: () => void
+  onRun: () => void
 }
 
 defineProps<Props>()
@@ -68,7 +69,7 @@ const historyStore = useHistoryStore()
         <IconButton title="Export workflow" aria-label="Export workflow to JSON" @click="onExport">📤</IconButton>
         <IconButton title="Import workflow" aria-label="Import workflow from JSON" @click="onImport">📥</IconButton>
       </div>
-      <Button variant="primary" aria-label="Run workflow">Run</Button>
+      <Button variant="primary" aria-label="Run workflow" @click="onRun">Run</Button>
     </div>
   </header>
 </template>

@@ -79,7 +79,7 @@ function handleFileImport(event: Event) {
   <dialog
     v-if="modelValue"
     :open="modelValue"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop:bg-black backdrop:bg-opacity-50"
+    class="fixed top-0 left-0 right-0 bottom-0 w-screen h-screen bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop:bg-black backdrop:bg-opacity-50 m-0 p-0"
     aria-labelledby="import-dialog-title"
     @click.self="close"
   >
