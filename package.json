@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc -b && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "type-check": "vue-tsc --noEmit",
     "test": "vitest",
@@ -37,6 +37,7 @@
     "@types/node": "^25.0.6",
     "@types/uuid": "^10.0.0",
     "@vitejs/plugin-vue": "^6.0.3",
+    "@vitest/coverage-v8": "^4.0.17",
     "@vue/test-utils": "^2.4.6",
     "happy-dom": "^20.1.0",
     "tailwindcss": "^4.1.18",

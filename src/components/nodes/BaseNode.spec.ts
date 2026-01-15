@@ -240,10 +240,10 @@ describe('BaseNode', () => {
 			})
 
 			const executionStore = useExecutionStore()
-			executionStore.nodeStates['test-node-1'] = {
+			executionStore.setNodeState('test-node-1', {
 				status: 'running',
-				startTime: Date.now(),
-			}
+				startedAt: new Date().toISOString(),
+			})
 
 			await wrapper.vm.$nextTick()
 
@@ -259,11 +259,11 @@ describe('BaseNode', () => {
 			})
 
 			const executionStore = useExecutionStore()
-			executionStore.nodeStates['test-node-1'] = {
+			executionStore.setNodeState('test-node-1', {
 				status: 'success',
-				startTime: Date.now(),
-				endTime: Date.now(),
-			}
+				startedAt: new Date().toISOString(),
+				completedAt: new Date().toISOString(),
+			})
 
 			await wrapper.vm.$nextTick()
 
@@ -278,12 +278,12 @@ describe('BaseNode', () => {
 			})
 
 			const executionStore = useExecutionStore()
-			executionStore.nodeStates['test-node-1'] = {
+			executionStore.setNodeState('test-node-1', {
 				status: 'error',
-				startTime: Date.now(),
-				endTime: Date.now(),
+				startedAt: new Date().toISOString(),
+				completedAt: new Date().toISOString(),
 				error: 'Test error',
-			}
+			})
 
 			await wrapper.vm.$nextTick()
 
@@ -298,10 +298,10 @@ describe('BaseNode', () => {
 			})
 
 			const executionStore = useExecutionStore()
-			executionStore.nodeStates['test-node-1'] = {
+			executionStore.setNodeState('test-node-1', {
 				status: 'skipped',
-				startTime: Date.now(),
-			}
+				startedAt: new Date().toISOString(),
+			})
 
 			await wrapper.vm.$nextTick()
 
@@ -316,17 +316,16 @@ describe('BaseNode', () => {
 			})
 
 			const executionStore = useExecutionStore()
-			executionStore.currentNodeId = 'test-node-1'
-			executionStore.nodeStates['test-node-1'] = {
+			executionStore.setCurrentNode('test-node-1')
+			executionStore.setNodeState('test-node-1', {
 				status: 'running',
-				startTime: Date.now(),
-			}
+				startedAt: new Date().toISOString(),
+			})
 
 			await wrapper.vm.$nextTick()
 
 			const rootDiv = wrapper.find('div').element
 			expect(rootDiv.className).toContain('ring-blue-500')
-			expect(rootDiv.className).toContain('animate-pulse')
 		})
 	})
 

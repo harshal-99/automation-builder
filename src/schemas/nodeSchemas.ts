@@ -48,7 +48,7 @@ export const sendEmailSchema = z.object({
   to: z.string().min(1, 'Recipient email is required'),
   subject: z.string().min(1, 'Subject is required'),
   body: z.string().min(1, 'Email body is required'),
-  cc: z.email('Must be a valid email address').optional().or(z.literal('')),
+  cc: z.string().optional().or(z.literal('')),
 })
 
 export type SendEmailConfig = z.infer<typeof sendEmailSchema>

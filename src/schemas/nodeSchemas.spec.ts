@@ -166,23 +166,23 @@ describe('nodeSchemas', () => {
 			expect(result.success).toBe(true)
 		})
 
-		it('rejects invalid to email', () => {
+		it('accepts template variable in to field', () => {
 			const result = sendEmailSchema.safeParse({
-				to: 'not-an-email',
+				to: '{user.email}',
 				subject: 'Test Subject',
 				body: 'Test body content',
 			})
-			expect(result.success).toBe(false)
+			expect(result.success).toBe(true)
 		})
 
-		it('rejects invalid cc email', () => {
+		it('accepts template variable in cc field', () => {
 			const result = sendEmailSchema.safeParse({
 				to: 'user@example.com',
 				subject: 'Test Subject',
 				body: 'Test body content',
-				cc: 'not-an-email',
+				cc: '{manager.email}',
 			})
-			expect(result.success).toBe(false)
+			expect(result.success).toBe(true)
 		})
 
 		it('rejects empty subject', () => {
