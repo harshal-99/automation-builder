@@ -83,7 +83,7 @@ export class WorkflowPage {
   }
 
   get statusText() {
-    return this.footer.locator('span').filter({ hasText: /Ready|Running|Paused|Completed|Error/ })
+    return this.footer.locator('output')
   }
 
   // Methods

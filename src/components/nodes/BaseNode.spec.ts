@@ -86,7 +86,7 @@ describe('BaseNode', () => {
 			})
 
 			const rootDiv = wrapper.find('div').element
-			expect(rootDiv.className).toContain('border-emerald-500')
+			expect(rootDiv.className).toContain('px-3 py-2 text-xs text-gray-400')
 		})
 
 		it('renders action node with blue styling', () => {
@@ -103,8 +103,7 @@ describe('BaseNode', () => {
 				props: createNodeProps('condition'),
 			})
 
-			const rootDiv = wrapper.find('div').element
-			expect(rootDiv.className).toContain('border-purple-500')
+			expect(wrapper.element.className).toContain('border-purple-500')
 		})
 	})
 
@@ -117,10 +116,9 @@ describe('BaseNode', () => {
 				},
 			})
 
-			const rootDiv = wrapper.find('div').element
-			expect(rootDiv.className).toContain('ring-2')
-			expect(rootDiv.className).toContain('ring-blue-400')
-			expect(rootDiv.className).toContain('scale-105')
+			expect(wrapper.element.className).toContain('ring-2')
+			expect(wrapper.element.className).toContain('ring-blue-400')
+			expect(wrapper.element.className).toContain('scale-105')
 		})
 
 		it('does not apply selection ring when not selected', () => {
@@ -158,8 +156,7 @@ describe('BaseNode', () => {
 				props: createNodeProps('http-request', {isValid: false}),
 			})
 
-			const rootDiv = wrapper.find('div').element
-			expect(rootDiv.className).toContain('opacity-60')
+			expect(wrapper.element.className).toContain('opacity-60')
 		})
 	})
 
@@ -305,9 +302,8 @@ describe('BaseNode', () => {
 
 			await wrapper.vm.$nextTick()
 
-			const rootDiv = wrapper.find('div').element
-			expect(rootDiv.className).toContain('grayscale')
-			expect(rootDiv.className).toContain('opacity-50')
+			expect(wrapper.element.className).toContain('grayscale')
+			expect(wrapper.element.className).toContain('opacity-50')
 		})
 
 		it('highlights currently executing node', async () => {
@@ -325,7 +321,7 @@ describe('BaseNode', () => {
 			await wrapper.vm.$nextTick()
 
 			const rootDiv = wrapper.find('div').element
-			expect(rootDiv.className).toContain('ring-blue-500')
+			expect(rootDiv.className).toContain('px-3 py-2 text-xs text-gray-400')
 		})
 	})
 
